@@ -10,6 +10,7 @@ Monorepo com meus estudos de C# / .NET. Cada pasta é um projeto independente.
 | [PayrollProject](PayrollProject) | Folha de pagamento com tipos de funcionário (herança, polimorfismo em `CalculatePayment`). |
 | [ProductRegistrationProject](ProductRegistrationProject) | Registro de produtos (nacional, importado, usado) com herança e `ToString` polimórfico. |
 | [BookingProject](BookingProject) | Reservas de quarto com validação de datas via exceção de domínio (`DomainException`). |
+| [ToDoProject](ToDoProject) | Lista de tarefas (adicionar, concluir, remover, listar por prioridade) com enums e `DomainException`. |
 
 ## Como rodar um projeto
 
