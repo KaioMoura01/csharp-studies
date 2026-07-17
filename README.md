@@ -7,6 +7,7 @@ Monorepo com meus estudos de C# / .NET. Cada pasta é um projeto independente.
 | Pasta | Descrição |
 |---|---|
 | [BankProject](BankProject) | Simulador de contas bancárias (herança, polimorfismo, tratamento de exceções). |
+| [PayrollProject](PayrollProject) | Folha de pagamento com tipos de funcionário (herança, polimorfismo em `CalculatePayment`). |
 
 ## Como rodar um projeto
 
