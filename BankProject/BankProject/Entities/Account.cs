@@ -50,9 +50,9 @@ public abstract class Account(string ownerName, double amount)
         var sb = new StringBuilder();
         sb.Append(
             string.Concat(
-                "A conta de: ", 
+                "Account of: ",
                 OwnerAccount,
-                " possui ", 
+                " has ",
                 Amount.ToString("F2", CultureInfo.InvariantCulture)
                 ));
         
