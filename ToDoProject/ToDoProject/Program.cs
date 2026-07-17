@@ -2,10 +2,12 @@ using ToDoProject.Domain;
 using ToDoProject.Entities;
 using ToDoProject.Entities.Enums;
 using ToDoProject.Misc;
+using ToDoProject.Services;
 
-var tasks = new List<TaskItem>();
+var tasks = TaskRepository.Load();
 
 Console.WriteLine("=== Welcome to ToDoProject ===");
+Console.WriteLine($"{tasks.Count} task(s) loaded from storage.");
 
 var running = true;
 while (running)
@@ -31,6 +33,7 @@ while (running)
                 var priority = ReadPriority();
 
                 tasks.Add(new TaskItem(name, dueDate, priority));
+                TaskRepository.Save(tasks);
                 Console.WriteLine("Task added successfully!");
                 break;
             }
@@ -40,6 +43,7 @@ while (running)
                 if (task is null) break;
 
                 task.ChangeTaskStatus(EnumConclusionTaskStatus.Completed);
+                TaskRepository.Save(tasks);
                 Console.WriteLine("Task completed!");
                 break;
             }
@@ -49,6 +53,7 @@ while (running)
                 if (task is null) break;
 
                 tasks.Remove(task);
+                TaskRepository.Save(tasks);
                 Console.WriteLine("Task removed!");
                 break;
             }

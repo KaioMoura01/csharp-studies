@@ -5,8 +5,8 @@ namespace PlayersRankingProject.Entities;
 
 public class Player : IComparable<Player>
 {
-    public string Name { get; set; }
-    public int Score { get; set; }
+    public string Name { get; }
+    private int Score { get; set; }
     public DateTime RegistrationDate { get; set; }
 
     public Player(string name, int score, DateTime registrationDate)
@@ -28,12 +28,7 @@ public class Player : IComparable<Player>
 
     public int CompareTo(Player? other)
     {
-        if (other is null)
-        {
-            return 1;
-        }
-
-        return other.Score.CompareTo(Score);
+        return other is null ? 1 : other.Score.CompareTo(Score);
     }
 
     public override bool Equals(object? obj)

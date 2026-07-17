@@ -6,19 +6,32 @@ namespace ToDoProject.Entities;
 
 public class TaskItem
 {
-    private string Name { get; set; }
-    private DateTime DueDate { get; set; }
+    public string Name { get; private set; }
+    public DateTime DueDate { get; private set; }
     public EnumTaskPriority Priority { get; set; }
     public EnumConclusionTaskStatus TaskStatus { get; set; }
 
     public TaskItem(string name, DateTime dueDate, EnumTaskPriority priority, EnumConclusionTaskStatus taskStatus = EnumConclusionTaskStatus.WaitingStart)
     {
         ValidateDueDate(dueDate);
-        
+
         Priority = priority;
         Name = name;
         DueDate = dueDate;
         TaskStatus = taskStatus;
+    }
+
+    private TaskItem(string name, DateTime dueDate, EnumTaskPriority priority, EnumConclusionTaskStatus taskStatus, bool _)
+    {
+        Name = name;
+        DueDate = dueDate;
+        Priority = priority;
+        TaskStatus = taskStatus;
+    }
+
+    public static TaskItem FromStorage(string name, DateTime dueDate, EnumTaskPriority priority, EnumConclusionTaskStatus taskStatus)
+    {
+        return new TaskItem(name, dueDate, priority, taskStatus, true);
     }
 
     private void ValidateDueDate(DateTime dueDate)
