@@ -2,14 +2,14 @@ using System.Globalization;
 using SalesReportProject.Domain;
 using SalesReportProject.Entities;
 using SalesReportProject.Misc;
+using SalesReportProject.Services;
 
 var sales = new List<Sell>();
 var sellers = new List<Seller>();
 var nextSaleId = 1;
 var nextSellerId = 1;
 
-Func<Sell, double> saleTotal = sale => sale.ProductsSold.Sum(p => p.Price * p.Quantity);
-Func<double, string> money = value => value.ToString("F2", CultureInfo.InvariantCulture);
+var reports = new SalesReportService(sales);
 
 Console.WriteLine("=== Welcome to SalesReportProject ===");
 
@@ -23,6 +23,8 @@ while (running)
     Console.WriteLine("4 - Report: top 3 products");
     Console.WriteLine("5 - Report: filter by period");
     Console.WriteLine("6 - List all sales");
+    Console.WriteLine("7 - Import sales from CSV");
+    Console.WriteLine("8 - Export full report to file");
     Console.WriteLine("0 - Exit");
 
     var option = Utils.ReadInt("Choose an option: ");
@@ -36,19 +38,31 @@ while (running)
                 RegisterSale();
                 break;
             case 2:
-                ReportTotalPerSeller();
+                if (NoSales()) break;
+                reports.TotalPerSeller(Console.Out);
                 break;
             case 3:
-                ReportMonthlyAverage();
+                if (NoSales()) break;
+                reports.MonthlyAverage(Console.Out);
                 break;
             case 4:
-                ReportTopProducts();
+                if (NoSales()) break;
+                reports.TopProducts(Console.Out);
                 break;
             case 5:
+                if (NoSales()) break;
                 ReportByPeriod();
                 break;
             case 6:
+                if (NoSales()) break;
                 ListAllSales();
+                break;
+            case 7:
+                ImportFromCsv();
+                break;
+            case 8:
+                if (NoSales()) break;
+                ExportReportToFile();
                 break;
             case 0:
                 running = false;
@@ -102,80 +116,15 @@ void RegisterSale()
     }
 
     sales.Add(sale);
-    Console.WriteLine($"Sale registered successfully! Total: {money(saleTotal(sale))}");
-}
-
-void ReportTotalPerSeller()
-{
-    if (NoSales()) return;
-
-    var report = sales
-        .GroupBy(s => s.Seller)
-        .Select(g => new { Seller = g.Key, Total = g.Sum(saleTotal) })
-        .OrderByDescending(x => x.Total);
-
-    Console.WriteLine("=== Total per seller ===");
-    foreach (var row in report)
-    {
-        Console.WriteLine($"{row.Seller.Name}: {money(row.Total)}");
-    }
-}
-
-void ReportMonthlyAverage()
-{
-    if (NoSales()) return;
-
-    var byMonth = sales
-        .GroupBy(s => new { s.Date.Year, s.Date.Month })
-        .Select(g => new { g.Key.Year, g.Key.Month, Total = g.Sum(saleTotal) })
-        .OrderBy(x => x.Year).ThenBy(x => x.Month)
-        .ToList();
-
-    Console.WriteLine("=== Monthly total ===");
-    foreach (var row in byMonth)
-    {
-        Console.WriteLine($"{row.Year}-{row.Month:D2}: {money(row.Total)}");
-    }
-
-    var average = byMonth.Average(x => x.Total);
-    Console.WriteLine($"Average per month: {money(average)}");
-}
-
-void ReportTopProducts()
-{
-    if (NoSales()) return;
-
-    var top = sales
-        .SelectMany(s => s.ProductsSold)
-        .GroupBy(p => p.Name)
-        .Select(g => new
-        {
-            Name = g.Key,
-            Quantity = g.Sum(p => p.Quantity),
-            Revenue = g.Sum(p => p.Price * p.Quantity)
-        })
-        .OrderByDescending(x => x.Revenue)
-        .Take(3);
-
-    Console.WriteLine("=== Top 3 products by revenue ===");
-    var rank = 1;
-    foreach (var row in top)
-    {
-        Console.WriteLine($"{rank++}) {row.Name} - revenue {money(row.Revenue)} ({row.Quantity} units)");
-    }
+    Console.WriteLine($"Sale registered successfully! Total: {Utils.Money(SalesReportService.Total(sale))}");
 }
 
 void ReportByPeriod()
 {
-    if (NoSales()) return;
-
     var start = Utils.ReadDate("Start date (dd/MM/yyyy): ");
     var end = Utils.ReadDate("End date (dd/MM/yyyy): ");
 
-    var filtered = sales
-        .Where(s => s.Date >= start && s.Date <= end)
-        .OrderBy(s => s.Date)
-        .ToList();
+    var filtered = reports.InPeriod(start, end);
 
     Console.WriteLine($"=== Sales between {start:dd/MM/yyyy} and {end:dd/MM/yyyy} ===");
     if (filtered.Count == 0)
@@ -186,21 +135,56 @@ void ReportByPeriod()
 
     foreach (var sale in filtered)
     {
-        Console.WriteLine($"#{sale.Id} | {sale.Date:dd/MM/yyyy} | {sale.Seller.Name} | {money(saleTotal(sale))}");
+        Console.WriteLine($"#{sale.Id} | {sale.Date:dd/MM/yyyy} | {sale.Seller.Name} | {Utils.Money(SalesReportService.Total(sale))}");
     }
 
-    Console.WriteLine($"Period total: {money(filtered.Sum(saleTotal))}");
+    Console.WriteLine($"Period total: {Utils.Money(filtered.Sum(SalesReportService.Total))}");
 }
 
 void ListAllSales()
 {
-    if (NoSales()) return;
-
     foreach (var sale in sales.OrderBy(s => s.Date))
     {
         Console.WriteLine(sale);
         Console.WriteLine();
     }
+}
+
+void ImportFromCsv()
+{
+    var defaultPath = Path.Combine(AppContext.BaseDirectory, "sales.csv");
+    var path = Utils.ReadPath("CSV file path", defaultPath);
+
+    var imported = AutomatorCSV.ReadSales(path);
+
+    sales.Clear();
+    sales.AddRange(imported);
+    sellers.Clear();
+    sellers.AddRange(imported.Select(s => s.Seller).DistinctBy(s => s.Id));
+    nextSaleId = sales.Count == 0 ? 1 : sales.Max(s => s.Id) + 1;
+    nextSellerId = sellers.Count == 0 ? 1 : sellers.Max(s => s.Id) + 1;
+
+    Console.WriteLine($"Imported {sales.Count} sale(s) from CSV.");
+}
+
+void ExportReportToFile()
+{
+    var defaultPath = Path.Combine(AppContext.BaseDirectory, "sales-report.txt");
+    var path = Utils.ReadPath("Output report path", defaultPath);
+
+    using var writer = new StringWriter();
+    writer.WriteLine("=== SALES REPORT ===");
+    writer.WriteLine($"Generated at: {DateTime.Now.ToString("dd/MM/yyyy HH:mm", CultureInfo.InvariantCulture)}");
+    writer.WriteLine($"Total sales: {sales.Count}");
+    writer.WriteLine();
+    reports.TotalPerSeller(writer);
+    writer.WriteLine();
+    reports.MonthlyAverage(writer);
+    writer.WriteLine();
+    reports.TopProducts(writer);
+
+    AutomatorCSV.WriteReport(path, writer.ToString());
+    Console.WriteLine($"Report written to: {path}");
 }
 
 bool NoSales()

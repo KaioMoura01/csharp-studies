@@ -1,5 +1,5 @@
-using System.Globalization;
 using SalesReportProject.Domain;
+using SalesReportProject.Misc;
 
 namespace SalesReportProject.Entities;
 
@@ -31,8 +31,8 @@ public class Product
         Quantity = quantity;
     }
 
-    override public string ToString()
+    public override string ToString()
     {
-        return $"{Name}, {Price.ToString("F2", CultureInfo.InvariantCulture)} x {Quantity}";
+        return $"{Name}, {Utils.Money(Price)} x {Quantity}";
     }
 }

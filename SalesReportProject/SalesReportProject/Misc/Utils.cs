@@ -67,4 +67,18 @@ public static class Utils
 
         return value;
     }
+
+    // Reads an optional file path; empty input falls back to the given default.
+    public static string ReadPath(string label, string defaultPath)
+    {
+        Console.Write($"{label} [{defaultPath}]: ");
+        var input = Console.ReadLine();
+        return string.IsNullOrWhiteSpace(input) ? defaultPath : input.Trim();
+    }
+
+    // Formats a monetary value with two decimals and invariant culture.
+    public static string Money(double value)
+    {
+        return value.ToString("F2", CultureInfo.InvariantCulture);
+    }
 }

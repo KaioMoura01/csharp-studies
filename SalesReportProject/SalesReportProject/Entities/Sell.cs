@@ -1,5 +1,5 @@
-using System.Globalization;
 using System.Text;
+using SalesReportProject.Misc;
 
 namespace SalesReportProject.Entities;
 
@@ -35,7 +35,7 @@ public class Sell(int id, DateTime date, Seller seller)
         }
         
         sb.AppendLine($"Products Sold: {ProductsSold.Count}");
-        sb.AppendLine($"Subtotal: {sum.ToString("F2", CultureInfo.InvariantCulture)}");
+        sb.AppendLine($"Subtotal: {Utils.Money(sum)}");
         return sb.ToString();
     }
 }
