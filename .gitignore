@@ -1,0 +1,13 @@
+# Build output
+bin/
+obj/
+out/
+
+# Rider / Visual Studio / VS Code
+.idea/
+.vs/
+*.user
+*.suo
+
+# Rider build helper
+.DS_Store
