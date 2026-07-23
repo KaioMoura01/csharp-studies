@@ -1,6 +1,6 @@
 namespace CatalogApi.DTOs;
 
-public class ProductRequestDTO
+public class ProductRequestDto
 {
     public string? Name { get; set; }
     public string? Description { get; set; }

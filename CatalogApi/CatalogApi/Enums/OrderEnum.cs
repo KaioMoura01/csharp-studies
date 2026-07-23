@@ -1,6 +1,7 @@
 namespace CatalogApi.Enums;
 
-public enum OrderEnum
+public enum OrderEnum:int
 {
-    
+    Asc,
+    Desc
 }
