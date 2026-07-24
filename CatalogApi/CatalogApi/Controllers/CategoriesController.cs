@@ -1,7 +1,9 @@
 using CatalogApi.DTOs;
+using CatalogApi.Extensions;
 using CatalogApi.Models;
 using CatalogApi.Pagination;
 using CatalogApi.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogApi.Controllers;
@@ -23,53 +25,56 @@ public class CategoriesController(IUnitOfWork unitOfWork) : ControllerBase
 
     //========================================================
     [HttpGet]
-    public ActionResult<IEnumerable<Category>> Get([FromQuery] GenericParameters parameters)
+    public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> Get([FromQuery] GenericParameters parameters)
     {
-        var categories = _uow.Categories.ListAll(parameters);
+        var categories = await _uow.Categories.ListAll(parameters);
 
-        return Ok(categories);
+        return Ok(categories.ToResponseDto());
     }
     
     //========================================================
     [HttpGet("{id:int}", Name =  "GetCategoryById")]
-    public ActionResult<Category> Get(int id)
+    public async Task<ActionResult<CategoryResponseDto>> Get(int id)
     {
-        var category = _uow.Categories.Get(c=> c.CategoryId==id);
+        var category = await _uow.Categories.Get(c=> c.CategoryId==id);
 
         if (category is null)
         {
             return NotFound();
         }
         
-        return Ok(category);
+        return Ok(category.ToResponseDto());
     }
 
     //========================================================
+    [Authorize]
     [HttpPost]
-    public ActionResult<Category> Post(CategoryRequestDto category)
+    public async Task<ActionResult<CategoryResponseDto>> Post(CategoryRequestDto category)
     {
         var newCategory = GenerateCategory(category);
         var created = _uow.Categories.Create(newCategory);
-        _uow.Commit();
-        return new CreatedAtRouteResult("GetCategoryById", new { id = created.CategoryId }, created);
+        await _uow.Commit();
+        return new CreatedAtRouteResult("GetCategoryById", new { id = created.CategoryId }, created.ToResponseDto());
     }
     
     //========================================================
+    [Authorize(Roles = "Admin,Financial")]
     [HttpPut("{id:int}")]
-    public ActionResult<Category> Put(int id,  CategoryRequestDto category)
+    public async Task<ActionResult<CategoryResponseDto>> Put(int id,  CategoryRequestDto category)
     {
         var newCategory = GenerateCategory(category);
         newCategory.CategoryId = id;
         var updated = _uow.Categories.Update(newCategory);
-        _uow.Commit();
-        return Ok(updated);
+        await _uow.Commit();
+        return Ok(updated.ToResponseDto());
     } 
 
     //========================================================
+    [Authorize]
     [HttpDelete("{id:int}")]
-    public ActionResult<Category> Delete(int id)
+    public async Task<ActionResult<CategoryResponseDto>> Delete(int id)
     {
-        var category = _uow.Categories.Get(c=> c.CategoryId==id);
+        var category = await _uow.Categories.Get(c=> c.CategoryId==id);
         
         if(category is null)
         {
@@ -77,7 +82,7 @@ public class CategoriesController(IUnitOfWork unitOfWork) : ControllerBase
         }
         
         var deleted = _uow.Categories.Delete(category);
-        _uow.Commit();
+        await _uow.Commit();
         return Ok(deleted);
     }
 }

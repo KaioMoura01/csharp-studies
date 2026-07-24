@@ -11,30 +11,32 @@ public class GenericRepository<T>(CatalogApiContext context):IGenericRepository<
 {
     protected readonly CatalogApiContext Context = context;
     
-    public IEnumerable<T> ListAll(GenericParameters? parameters = null)
+    public async Task<IEnumerable<T>> ListAll(GenericParameters? parameters = null)
     {
         var query = Context.Set<T>().AsNoTracking();
 
         if (parameters is null)
-            return query.ToList();
+            return await query.ToListAsync();
 
         if (!string.IsNullOrWhiteSpace(parameters.Search))
-            query = query.Where(x => x.Name != null &&
-                                     x.Name.ToLower().Contains(parameters.Search.ToLower()));
+        {
+            var search = parameters.Search.ToLower();
+            query = query.Where(x => x.Name != null && x.Name.ToLower().Contains(search));
+        }
 
         query = parameters.OrderByName == OrderEnum.Desc
             ? query.OrderByDescending(x => x.Name)
             : query.OrderBy(x => x.Name);
 
-        return query
+        return await query
             .Skip((parameters.Page - 1) * parameters.PageSize)
             .Take(parameters.PageSize)
-            .ToList();
+            .ToListAsync();
     }
 
-    public T? Get(Expression<Func<T, bool>> predicate)
+    public async Task<T?> Get(Expression<Func<T, bool>> predicate)
     {
-        return  Context.Set<T>().FirstOrDefault(predicate);
+        return await Context.Set<T>().FirstOrDefaultAsync(predicate);
     }
 
     public T Create(T entity)

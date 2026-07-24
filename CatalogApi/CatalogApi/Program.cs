@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using CatalogApi.Context;
 using CatalogApi.Extensions;
 using CatalogApi.Repositories;
+using CatalogApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -17,22 +18,22 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddDbContext<CatalogApiContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+BuilderAuthenticationService.ConfigureParameters(builder);
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-// Program.cs, depois de var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<CatalogApiContext>();
-    db.Database.Migrate();   // aplica migrations pendentes automaticamente
-}
+// aplica migrations pendentes automaticamente, tem que ficar depois do build
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<CatalogApiContext>();
+//     db.Database.Migrate();
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -42,7 +43,7 @@ if (app.Environment.IsDevelopment())
 }
 app.ConfigureExceptionHandler();
 
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
 app.UseAuthorization();
 

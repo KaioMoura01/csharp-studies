@@ -13,8 +13,8 @@ public class UnitOfWork(CatalogApiContext context) : IUnitOfWork
     
     public IProductRepository Products => _productsRepo ??= new ProductRepository(Context);
     
-    public void Commit()
+    public async Task Commit()
     {
-        Context.SaveChanges();
+        await Context.SaveChangesAsync();
     }
 }

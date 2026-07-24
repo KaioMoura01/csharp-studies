@@ -6,8 +6,8 @@ namespace CatalogApi.Repositories;
 
 public interface IGenericRepository<T> where T : class, INamed
 {
-    IEnumerable<T> ListAll(GenericParameters? parameters = null);
-    T? Get(Expression<Func<T, bool>> predicate);
+    Task<IEnumerable<T>> ListAll(GenericParameters? parameters = null);
+    Task<T?> Get(Expression<Func<T, bool>> predicate);
     T Create(T entity);
     T Update(T entity);
     bool Delete(T entity);

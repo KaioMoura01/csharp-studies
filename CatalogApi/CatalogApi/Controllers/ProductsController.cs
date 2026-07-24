@@ -1,7 +1,9 @@
 using CatalogApi.DTOs;
+using CatalogApi.Extensions;
 using CatalogApi.Models;
 using CatalogApi.Pagination;
 using CatalogApi.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CatalogApi.Controllers;
@@ -26,69 +28,73 @@ public class ProductsController(IUnitOfWork unitOfWork) : ControllerBase
     }
 
     [HttpGet("category/{categoryId:int}")]
-    public ActionResult<IEnumerable<Product>> GetByCategoryId(int categoryId)
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetByCategoryId(int categoryId)
     {
-        var products = _uow.Products.GetProductsByCategory(categoryId);
-        return Ok(products);
+        var products = await _uow.Products.GetProductsByCategory(categoryId);
+        return Ok(products.ToResponseDto());
     }
     
     //========================================================
     [HttpGet]
-    public ActionResult<IEnumerable<Product>> Get([FromQuery] GenericParameters parameters)
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> Get([FromQuery] GenericParameters parameters)
     {
-        var products = _uow.Products.ListAll(parameters);
-        return Ok(products);
+        var products = await _uow.Products.ListAll(parameters);
+        return Ok(products.ToResponseDto());
     }
     
     //========================================================
     [HttpGet("{id:int}", Name =  "GetProductById")]
-    public ActionResult<Product> Get(int id)
+    public async Task<ActionResult<ProductResponseDto>> Get(int id)
     {
-        var product = _uow.Products.Get(p=>p.ProductId==id);
+        var product = await _uow.Products.Get(p=>p.ProductId==id);
         
         if (product is null)
         {
             return NotFound();
         }
-        
-        return Ok(product);
+
+        return Ok(product.ToResponseDto());
     }
 
     //========================================================
     [HttpPost]
-    public ActionResult Post(ProductRequestDto product)
+    public async Task<ActionResult> Post(ProductRequestDto product)
     {
         var newProduct = GenerateProduct(product);
         var created = _uow.Products.Create(newProduct);
-        _uow.Commit();
-        return new CreatedAtRouteResult("GetProductById", new { id = created.ProductId }, created);
+        await _uow.Commit();
+        return new CreatedAtRouteResult("GetProductById", new { id = created.ProductId }, created.ToResponseDto());
     }
 
     //========================================================
+    [Authorize]
     [HttpPut("{id:int}")]
-    public ActionResult<Product> Put(int id, ProductRequestDto product)
+    public async Task<ActionResult<ProductResponseDto>> Put(int id, ProductRequestDto product)
     {
-        var existing = Get(id);
+        var existing = await _uow.Products.Get(p => p.ProductId == id);
 
-        if (existing.Value is null)
+        if (existing is null)
         {
             return NotFound();
         }
-        
-        var newProduct = GenerateProduct(product);
-        newProduct.ProductId = id;
-        newProduct.CreatedAt = existing.Value.CreatedAt;
-        
-        var updated = _uow.Products.Update(newProduct);
-        _uow.Commit();
-        return Ok(updated);
+
+        existing.Name = product.Name;
+        existing.Description = product.Description;
+        existing.Price = product.Price;
+        existing.ImageUrl = product.ImageUrl;
+        existing.Stock = product.Stock;
+        existing.CategoryId = product.CategoryId;
+
+        await _uow.Commit();
+        return Ok(existing.ToResponseDto());
     }
 
     //========================================================
+    [Authorize]
     [HttpDelete("{id:int}")]
-    public ActionResult<Product> Delete(int id)
+    public async Task<ActionResult<ProductResponseDto>> Delete(int id)
     {
-        var product = _uow.Products.Get(p=>p.ProductId==id);
+        var product = await _uow.Products.Get(p=>p.ProductId==id);
 
         if (product is null)
         {
@@ -96,7 +102,7 @@ public class ProductsController(IUnitOfWork unitOfWork) : ControllerBase
         }
         
         var deleted = _uow.Products.Delete(product);
-        _uow.Commit();
+        await _uow.Commit();
         return Ok(deleted);
         
     }
