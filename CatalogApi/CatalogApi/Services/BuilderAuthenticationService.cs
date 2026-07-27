@@ -61,4 +61,15 @@ public static class BuilderAuthenticationService
             });
         });
     }
+
+    public static void AddCorsConfig(WebApplicationBuilder builder, string corsPolicyName)
+    {
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(corsPolicyName, policy =>
+            {
+                policy.WithOrigins("http://apirequest.io");
+            });
+        });
+    }
 }

@@ -8,6 +8,7 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+const string originsAllowed = "_originsAllowed";
 
 // Add services to the container.
 
@@ -19,6 +20,8 @@ builder.Services.AddDbContext<CatalogApiContext>(options =>
     options.UseNpgsql(connectionString));
 
 BuilderAuthenticationService.ConfigureParameters(builder);
+//TODO: remover essa linha para remover a instância do CORS, bem como a linha 11
+BuilderAuthenticationService.AddCorsConfig(builder, originsAllowed);
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -28,7 +31,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-// aplica migrations pendentes automaticamente, tem que ficar depois do build
+// aplica migrations pendentes automaticamente, tem que ficar depois da "build"
 // using (var scope = app.Services.CreateScope())
 // {
 //     var db = scope.ServiceProvider.GetRequiredService<CatalogApiContext>();
@@ -42,6 +45,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 app.ConfigureExceptionHandler();
+
+//TODO: remover essa linha para desabilitar o CORS
+app.UseCors(originsAllowed);
 
 app.UseAuthentication();
 

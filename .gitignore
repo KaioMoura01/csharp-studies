@@ -11,3 +11,4 @@ out/
 
 # Rider build helper
 .DS_Store
+LibraryApi/pgadmin/pgpass
