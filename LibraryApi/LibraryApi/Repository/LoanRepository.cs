@@ -1,13 +1,13 @@
 using LibraryApi.Context;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
+using LibraryApi.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Repository;
 
 public class LoanRepository(AppDbContext context) : Repository<Loan>(context), ILoan
 {
-    private const int OverdueDays = 21; // 3 semanas
+    private const int OverdueDays = 21;
 
     public async Task<IEnumerable<Loan>> ListAllWithDetails(GenericParameters? parameters = null)
     {
@@ -20,7 +20,6 @@ public class LoanRepository(AppDbContext context) : Repository<Loan>(context), I
             .ToListAsync();
     }
 
-    // Sem AsNoTracking: usado no retorno/baixa, que altera Stock e ReturnDate.
     public async Task<Loan?> GetWithDetails(Guid id)
         => await Details().FirstOrDefaultAsync(l => l.Id == id);
 

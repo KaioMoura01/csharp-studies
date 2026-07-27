@@ -1,8 +1,8 @@
 using System.Linq.Expressions;
 using LibraryApi.Context;
 using LibraryApi.Enums;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
+using LibraryApi.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Repository;

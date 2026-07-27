@@ -1,5 +1,3 @@
-using LibraryApi.Interfaces;
-
 namespace LibraryApi.Models;
 
 public class Loan

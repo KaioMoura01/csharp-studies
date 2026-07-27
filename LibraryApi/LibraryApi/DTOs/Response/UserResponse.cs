@@ -1,6 +1,6 @@
 using LibraryApi.Enums;
 
-namespace LibraryApi.Dtos.Response;
+namespace LibraryApi.DTOs.Response;
 
 public record UserResponse(
     Guid Id,

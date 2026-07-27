@@ -1,18 +1,21 @@
-using LibraryApi.Dtos.Request;
-using LibraryApi.Dtos.Response;
+using LibraryApi.DTOs.Request;
+using LibraryApi.DTOs.Response;
 using LibraryApi.Extensions;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
+using LibraryApi.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Controllers;
 
 [ApiController]
 [Route("books")]
+[Authorize]
 public class BookController(IUnitOfWork unitOfWork) : ControllerBase
 {
     private readonly IUnitOfWork _uow = unitOfWork;
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookResponse>>> GetBooks([FromQuery] GenericParameters parameters)
     {
@@ -21,6 +24,7 @@ public class BookController(IUnitOfWork unitOfWork) : ControllerBase
         return Ok(books.ToResponse());
     }
 
+    [AllowAnonymous]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<BookResponse>> GetBook(Guid id)
     {
@@ -29,7 +33,7 @@ public class BookController(IUnitOfWork unitOfWork) : ControllerBase
         return book is null ? NotFound() : Ok(book.ToResponse());
     }
 
-    // TODO: [Authorize(Roles = "Admin,Librarian")]
+    [Authorize(Roles = "Admin,Librarian")]
     [HttpPost]
     public async Task<ActionResult<BookResponse>> CreateBook([FromBody] CreateBookRequest request)
     {
@@ -40,7 +44,7 @@ public class BookController(IUnitOfWork unitOfWork) : ControllerBase
         return CreatedAtAction(nameof(GetBook), new { id = book.Id }, book.ToResponse());
     }
 
-    // TODO: [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Librarian")]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<BookResponse>> UpdateBook(Guid id, [FromBody] UpdateBookRequest request)
     {
@@ -55,7 +59,7 @@ public class BookController(IUnitOfWork unitOfWork) : ControllerBase
         return Ok(book.ToResponse());
     }
 
-    // TODO: [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBook(Guid id)
     {
@@ -64,7 +68,7 @@ public class BookController(IUnitOfWork unitOfWork) : ControllerBase
         if (book is null) return NotFound();
 
         if (await _uow.Loans.HasActiveLoans(id))
-            return Conflict("Não é possível deletar um livro com empréstimos ativos.");
+            return Conflict("Cannot delete a book with active loans.");
 
         _uow.Books.Delete(book);
 

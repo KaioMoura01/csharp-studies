@@ -1,19 +1,21 @@
-using LibraryApi.Dtos.Request;
-using LibraryApi.Dtos.Response;
+using LibraryApi.DTOs.Request;
+using LibraryApi.DTOs.Response;
 using LibraryApi.Extensions;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
+using LibraryApi.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Controllers;
 
 [ApiController]
 [Route("loans")]
-// TODO: [Authorize(Roles = "Admin,Librarian")]
+[Authorize(Roles = "Admin,Librarian")]
 public class LoanController(IUnitOfWork unitOfWork) : ControllerBase
 {
-    private const int MaxActiveLoansPerUser = 3;
     private readonly IUnitOfWork _uow = unitOfWork;
+    private const bool UseMaxActiveLoansPerUser = false;
+    private const int MaxActiveLoansPerUser = 3;
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<LoanResponse>>> GetLoans([FromQuery] GenericParameters parameters)
@@ -43,17 +45,21 @@ public class LoanController(IUnitOfWork unitOfWork) : ControllerBase
     public async Task<ActionResult<LoanResponse>> CreateLoan([FromBody] CreateLoanRequest request)
     {
         var user = await _uow.Users.Get(u => u.Id == request.UserId);
-        if (user is null) return BadRequest("Usuário não encontrado.");
+        if (user is null) return BadRequest("User not found.");
 
         var book = await _uow.Books.Get(b => b.Id == request.BookId);
-        if (book is null) return BadRequest("Livro não encontrado.");
+        if (book is null) return BadRequest("Book not found.");
 
         if (book.Stock <= 0)
-            return Conflict("Livro sem estoque disponível.");
+            return Conflict("Book is out of stock.");
 
-        var activeLoans = await _uow.Loans.CountActiveByUser(user.Id);
-        if (activeLoans >= MaxActiveLoansPerUser)
-            return Conflict($"Usuário já possui {MaxActiveLoansPerUser} livros emprestados.");
+        if (UseMaxActiveLoansPerUser)
+        {
+            var activeLoans = await _uow.Loans.CountActiveByUser(user.Id);
+            if (activeLoans >= MaxActiveLoansPerUser)
+                return Conflict($"User already has {MaxActiveLoansPerUser} books on loan.");
+        }
+        
 
         var loan = new Loan
         {
@@ -75,7 +81,7 @@ public class LoanController(IUnitOfWork unitOfWork) : ControllerBase
     {
         var loan = await _uow.Loans.GetWithDetails(id);
         if (loan is null) return NotFound();
-        if (loan.Returned) return Conflict("Empréstimo já foi devolvido.");
+        if (loan.Returned) return Conflict("Loan has already been returned.");
 
         loan.ReturnDate = DateTime.UtcNow;
         loan.Book.Stock++;

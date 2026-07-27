@@ -1,6 +1,6 @@
 using LibraryApi.Models;
 
-namespace LibraryApi.Interfaces;
+namespace LibraryApi.Repository.Interfaces;
 
 public interface IUser:IRepository<User>
 {

@@ -1,4 +1,4 @@
-namespace LibraryApi.Interfaces;
+namespace LibraryApi.Domain;
 
 public interface INamed
 {

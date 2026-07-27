@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using LibraryApi.Models;
 
-namespace LibraryApi.Interfaces;
+namespace LibraryApi.Repository.Interfaces;
 
 public interface IRepository<T> where T: class
 {

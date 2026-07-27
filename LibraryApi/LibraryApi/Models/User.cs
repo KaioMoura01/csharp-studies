@@ -1,5 +1,5 @@
+using LibraryApi.Domain;
 using LibraryApi.Enums;
-using LibraryApi.Interfaces;
 
 namespace LibraryApi.Models;
 

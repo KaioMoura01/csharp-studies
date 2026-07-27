@@ -1,29 +1,30 @@
+using LibraryApi.Configurations;
 using LibraryApi.Context;
-using LibraryApi.Services;
+using LibraryApi.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-// Add services to the container.
-BuilderService.ProgramServices(builder.Services);
+DependencyInjection.ProgramServices(builder.Services);
+DependencyInjection.ConfigureJwtAuthentication(builder);
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
 
-app.MapOpenApi();
+    app.MapScalarApiReference();
+}
 
-app.MapScalarApiReference();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

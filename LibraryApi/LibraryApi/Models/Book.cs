@@ -1,4 +1,4 @@
-using LibraryApi.Interfaces;
+using LibraryApi.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace LibraryApi.Models;

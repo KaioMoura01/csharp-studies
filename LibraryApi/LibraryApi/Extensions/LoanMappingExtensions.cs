@@ -1,4 +1,4 @@
-using LibraryApi.Dtos.Response;
+using LibraryApi.DTOs.Response;
 using LibraryApi.Models;
 
 namespace LibraryApi.Extensions;

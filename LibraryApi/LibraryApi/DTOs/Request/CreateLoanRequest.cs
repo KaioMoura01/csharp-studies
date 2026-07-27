@@ -1,4 +1,4 @@
-namespace LibraryApi.Dtos.Request;
+namespace LibraryApi.DTOs.Request;
 
 public record CreateLoanRequest(
     Guid UserId,

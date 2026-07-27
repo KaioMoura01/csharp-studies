@@ -1,5 +1,5 @@
 using LibraryApi.Enums;
 
-namespace LibraryApi.Dtos.Request;
+namespace LibraryApi.DTOs.Request;
 
 public record UpdateUserRoleRequest(Role Role);

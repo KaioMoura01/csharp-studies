@@ -1,6 +1,6 @@
 using LibraryApi.Context;
+using LibraryApi.Domain;
 using LibraryApi.Enums;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,4 @@
-namespace LibraryApi.Interfaces;
+namespace LibraryApi.Repository.Interfaces;
 
 public interface IUnitOfWork
 {

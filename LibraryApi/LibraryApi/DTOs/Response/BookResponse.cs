@@ -1,4 +1,4 @@
-namespace LibraryApi.Dtos.Response;
+namespace LibraryApi.DTOs.Response;
 
 public record BookResponse(
     Guid Id,

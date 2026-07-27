@@ -1,5 +1,5 @@
-using LibraryApi.Dtos.Request;
-using LibraryApi.Dtos.Response;
+using LibraryApi.DTOs.Request;
+using LibraryApi.DTOs.Response;
 using LibraryApi.Enums;
 using LibraryApi.Models;
 

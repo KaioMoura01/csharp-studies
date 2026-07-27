@@ -1,6 +1,6 @@
 using LibraryApi.Context;
-using LibraryApi.Interfaces;
 using LibraryApi.Models;
+using LibraryApi.Repository.Interfaces;
 
 namespace LibraryApi.Repository;
 

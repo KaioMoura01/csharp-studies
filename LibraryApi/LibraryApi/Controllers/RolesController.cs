@@ -1,15 +1,16 @@
-using LibraryApi.Dtos.Request;
-using LibraryApi.Dtos.Response;
+using LibraryApi.DTOs.Request;
+using LibraryApi.DTOs.Response;
 using LibraryApi.Enums;
 using LibraryApi.Extensions;
-using LibraryApi.Interfaces;
+using LibraryApi.Repository.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryApi.Controllers;
 
 [ApiController]
 [Route("admin/roles")]
-// TODO: [Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
 public class RolesController(IUnitOfWork unitOfWork) : ControllerBase
 {
     private readonly IUnitOfWork _uow = unitOfWork;
