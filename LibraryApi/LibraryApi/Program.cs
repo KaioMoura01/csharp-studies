@@ -1,6 +1,5 @@
 using LibraryApi.Configurations;
 using LibraryApi.Context;
-using LibraryApi.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 

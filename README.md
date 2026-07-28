@@ -14,6 +14,8 @@ Monorepo com meus estudos de C# / .NET. Cada pasta é um projeto independente.
 | [SalesReportProject](SalesReportProject) | Cadastro de vendas e relatórios (total por vendedor, média mensal, top 3, período) com LINQ e lambdas. |
 | [PlayersRankingProject](PlayersRankingProject) | Ranking de jogadores com `IComparable`/`IComparer` e unicidade via `HashSet` (`Equals`/`GetHashCode`). |
 | [CatalogApi](CatalogApi) | API REST (ASP.NET Core / .NET 10) de catálogo de produtos e categorias: EF Core + PostgreSQL, autenticação JWT, _roles_ com Identity, paginação e Docker Compose. |
+| [LibraryApi](LibraryApi) | API REST (ASP.NET Core / .NET 10) de biblioteca: livros, usuários e empréstimos com EF Core + PostgreSQL, JWT, autorização por papéis, Repository/Unit of Work e Docker Compose. |
+| [BankLedgerApi](BankLedgerApi) | API REST (ASP.NET Core / .NET 10) de razão bancário: clientes, contas, depósitos, transferências e extrato com EF Core + SQLite, JWT (user-secrets), rate limiting, CORS e mappings. |
 
 ## Como rodar um projeto
 
@@ -24,4 +26,4 @@ cd <PastaDoProjeto>
 dotnet run
 ```
 
-O [CatalogApi](CatalogApi) é uma API web e tem passos próprios (banco, migrations, Docker) — veja o [README dele](CatalogApi/README.md).
+Os projetos de API web têm passos próprios (banco, migrations, segredos, Docker) — veja o README de cada um: [CatalogApi](CatalogApi/README.md), [LibraryApi](LibraryApi/README.md), [BankLedgerApi](BankLedgerApi/README.md).
