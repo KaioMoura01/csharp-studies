@@ -1,0 +1,7 @@
+﻿services:
+  bankledgerapi:
+    image: bankledgerapi
+    build:
+      context: .
+      dockerfile: BankLedgerApi/Dockerfile
+
