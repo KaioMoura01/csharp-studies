@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import InputPassword from 'primevue/inputpassword'
 import Select from 'primevue/select'
 import Button from 'primevue/button'
 import Message from 'primevue/message'
@@ -17,7 +16,7 @@ const emit = defineEmits<{
   created: []
 }>()
 
-const { accountName, accountType, password, loading, error, submit } = OpenAccountService()
+const { accountName, accountType, loading, error, submit } = OpenAccountService()
 
 const accountTypeOptions = [
   { label: 'Corrente', value: 'Checking' },
@@ -58,11 +57,6 @@ async function handleSubmit() {
           fluid
         />
       </div>
-      <div class="flex flex-col gap-2">
-        <label for="newAccountPassword" class="text-sm font-medium">Senha da nova conta</label>
-        <InputPassword id="newAccountPassword" v-model="password" toggleMask fluid />
-      </div>
-
       <Message v-if="error" severity="error" variant="simple" size="small">{{ error }}</Message>
 
       <Button type="submit" label="Abrir conta" icon="pi pi-plus" :loading="loading" />

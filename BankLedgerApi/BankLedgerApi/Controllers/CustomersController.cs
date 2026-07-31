@@ -1,6 +1,8 @@
-using BankLedgerApi.DTOs.Accounts;
-using BankLedgerApi.DTOs.Customers;
-using BankLedgerApi.Services.Interfaces;
+using System.Security.Claims;
+using BankLedgerApi.Application.DTOs.Accounts;
+using BankLedgerApi.Application.DTOs.Customers;
+using BankLedgerApi.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BankLedgerApi.Controllers;
@@ -15,7 +17,7 @@ public class CustomersController(
 {
     [HttpPost]
     [EndpointSummary("Create a customer")]
-    [EndpointDescription("Registers a customer with a name and a tax document (CPF or CNPJ). The document number is validated by its digit count.")]
+    [EndpointDescription("Registers a customer with a name, a tax document (CPF or CNPJ) and a password used for login. The document number is validated by its digit count.")]
     [ProducesResponseType<CustomerDetailsResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create(CreateCustomerRequest request)
@@ -42,12 +44,20 @@ public class CustomersController(
         return customer is null ? NotFound() : Ok(customer);
     }
 
+    [Authorize]
     [HttpGet("{id:guid}/accounts")]
     [EndpointSummary("List a customer's accounts")]
-    [EndpointDescription("Returns the accounts owned by the customer without repeating the owner data.")]
+    [EndpointDescription("Returns the accounts owned by the customer without repeating the owner data. Requires a valid JWT issued for that same customer.")]
     [ProducesResponseType<IEnumerable<AccountSummaryResponse>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAccounts(Guid id)
     {
+        var callerCustomerId = Guid.Parse(User.FindFirstValue("customerId")!);
+
+        if (callerCustomerId != id)
+            return Forbid();
+
         var accounts = await accountService.GetByCustomerAsync(id);
         return Ok(accounts);
     }

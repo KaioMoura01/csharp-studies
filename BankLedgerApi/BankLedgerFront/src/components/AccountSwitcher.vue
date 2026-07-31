@@ -90,6 +90,7 @@ function handleAccountOpened() {
     <SwitchAccountDialog
       v-if="switchTarget"
       v-model:visible="switchDialogVisible"
+      :account-id="switchTarget.id"
       :account-number="switchTarget.number"
       :account-name="switchTarget.name"
       @switched="handleSwitched"

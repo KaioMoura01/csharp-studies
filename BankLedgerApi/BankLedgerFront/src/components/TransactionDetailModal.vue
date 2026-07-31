@@ -4,7 +4,7 @@ import Dialog from 'primevue/dialog'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Message from 'primevue/message'
-import { useConfirm } from 'primevue/useconfirm'
+import InputPassword from 'primevue/inputpassword'
 import { FormaterServices } from '@/services/formater_service'
 import { ReversalService } from '@/services/reversal_service'
 import type { StatementEntry } from '@/services/statement_service'
@@ -19,9 +19,10 @@ const emit = defineEmits<{
   reversed: []
 }>()
 
-const confirm = useConfirm()
 const { loading, error, reverse } = ReversalService()
 const reversed = ref(false)
+const confirmVisible = ref(false)
+const password = ref('')
 
 watch(
   () => props.visible,
@@ -33,28 +34,33 @@ watch(
   },
 )
 
+watch(confirmVisible, (visible) => {
+  if (!visible) {
+    password.value = ''
+    error.value = ''
+  }
+})
+
 function close() {
   emit('update:visible', false)
 }
 
-function confirmReversal() {
-  if (!props.entry) return
-
-  confirm.require({
-    header: 'Confirmar estorno',
-    message: `Deseja pedir o estorno de ${FormaterServices.FormatCurrency(props.entry.amount)} enviado para ${props.entry.counterpartyName}?`,
-    icon: 'pi pi-exclamation-triangle',
-    rejectProps: { label: 'Cancelar', severity: 'secondary', outlined: true },
-    acceptProps: { label: 'Pedir estorno', severity: 'danger' },
-    accept: requestReversal,
-  })
+function openConfirmReversal() {
+  password.value = ''
+  confirmVisible.value = true
 }
 
-async function requestReversal() {
+async function confirmReversal() {
   if (!props.entry) return
-  const result = await reverse(props.entry.transferId)
+  if (!password.value) {
+    error.value = 'Informe sua senha.'
+    return
+  }
+
+  const result = await reverse(props.entry.transferId, password.value)
   if (result) {
     reversed.value = true
+    confirmVisible.value = false
     emit('reversed')
   }
 }
@@ -64,11 +70,11 @@ function statusSeverity(status: StatementEntry['status']) {
     case 'Completed':
       return 'success'
     case 'Pending':
-      return 'warn'
+      return 'info'
     case 'Failed':
       return 'danger'
     case 'Reversed':
-      return 'contrast'
+      return 'warn'
   }
 }
 
@@ -123,7 +129,6 @@ const canReverse = () =>
         <Tag :value="FormaterServices.FormatStatus(entry.status)" :severity="statusSeverity(entry.status)" />
       </div>
 
-      <Message v-if="error" severity="error" variant="simple" size="small">{{ error }}</Message>
       <Message v-if="reversed" severity="success" variant="simple" size="small">
         Estorno solicitado com sucesso.
       </Message>
@@ -135,9 +140,33 @@ const canReverse = () =>
         v-if="canReverse()"
         label="Pedir estorno"
         severity="danger"
-        :loading="loading"
-        @click="confirmReversal"
+        @click="openConfirmReversal"
       />
     </template>
+  </Dialog>
+
+  <Dialog
+    v-model:visible="confirmVisible"
+    modal
+    header="Confirmar estorno"
+    :style="{ width: '22rem' }"
+  >
+    <form v-if="entry" class="flex flex-col gap-4" @submit.prevent="confirmReversal">
+      <p class="text-sm text-surface-600 dark:text-surface-300">
+        Deseja pedir o estorno de {{ FormaterServices.FormatCurrency(entry.amount) }} enviado para
+        {{ entry.counterpartyName }}?
+      </p>
+      <div class="flex flex-col gap-2">
+        <label for="reversalPassword" class="text-sm font-medium">Senha</label>
+        <InputPassword id="reversalPassword" v-model="password" :feedback="false" toggleMask fluid autofocus />
+      </div>
+
+      <Message v-if="error" severity="error" variant="simple" size="small">{{ error }}</Message>
+
+      <div class="flex justify-end gap-2">
+        <Button label="Cancelar" text :disabled="loading" @click="confirmVisible = false" />
+        <Button type="submit" label="Pedir estorno" severity="danger" :loading="loading" />
+      </div>
+    </form>
   </Dialog>
 </template>

@@ -11,25 +11,17 @@ export function SwitchAccountService() {
   const loading = ref(false)
   const error = ref('')
 
-  async function switchAccount(accountNumber: string, password: string): Promise<boolean> {
-    if (!password) {
-      error.value = 'Informe a senha dessa conta.'
-      return false
-    }
-
+  async function switchAccount(accountId: string, accountNumber: string): Promise<boolean> {
     try {
       loading.value = true
       error.value = ''
 
-      const { data } = await apiService.post<LoginResponse>('auth/login', {
-        accountNumber,
-        password,
-      })
+      const { data } = await apiService.post<LoginResponse>(`auth/switch-account/${accountId}`)
 
-      auth.login(data.token, accountNumber)
+      auth.login(data.token, data.customerId, data.activeAccountId, accountNumber)
       return true
     } catch {
-      error.value = 'Senha incorreta.'
+      error.value = 'Não foi possível trocar de conta.'
       return false
     } finally {
       loading.value = false

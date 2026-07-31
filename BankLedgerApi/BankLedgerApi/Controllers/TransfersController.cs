@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using BankLedgerApi.DTOs.Transfers;
-using BankLedgerApi.Services.Interfaces;
+using BankLedgerApi.Application.DTOs.Transfers;
+using BankLedgerApi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;

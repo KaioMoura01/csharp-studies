@@ -8,6 +8,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["BankLedgerApi/BankLedgerApi.csproj", "BankLedgerApi/"]
+COPY ["BankLedgerApi.Application/BankLedgerApi.Application.csproj", "BankLedgerApi.Application/"]
+COPY ["BankLedgerApi.Domain/BankLedgerApi.Domain.csproj", "BankLedgerApi.Domain/"]
+COPY ["BankLedgerApi.Infrastructure/BankLedgerApi.Infrastructure.csproj", "BankLedgerApi.Infrastructure/"]
 RUN dotnet restore "BankLedgerApi/BankLedgerApi.csproj"
 COPY . .
 WORKDIR "/src/BankLedgerApi"

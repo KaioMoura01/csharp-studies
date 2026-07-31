@@ -1,7 +1,4 @@
 using BankLedgerApi.Configurations;
-using BankLedgerApi.Context;
-using Microsoft.EntityFrameworkCore;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

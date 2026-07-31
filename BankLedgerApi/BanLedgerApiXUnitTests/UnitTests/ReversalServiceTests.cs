@@ -1,7 +1,7 @@
 using BanLedgerApiXUnitTests.UnitTests.TestSupport;
-using BankLedgerApi.Enums;
-using BankLedgerApi.Models;
-using BankLedgerApi.Services;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Domain.Models;
+using BankLedgerApi.Application.Services;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,9 +31,9 @@ public class ReversalServiceTests
     public async Task ReverseAsync_WhenTransferMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var response = await service.ReverseAsync(Guid.NewGuid(), Guid.NewGuid());
+        var response = await service.ReverseAsync(Guid.NewGuid(), Guid.NewGuid(), "1234");
 
         response.Should().BeNull();
     }
@@ -55,9 +55,9 @@ public class ReversalServiceTests
         };
         db.Context.Transfers.Add(deposit);
         await db.Context.SaveChangesAsync();
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ReverseAsync(account.Id, deposit.Id);
+        var act = () => service.ReverseAsync(account.Id, deposit.Id, "1234");
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -70,9 +70,9 @@ public class ReversalServiceTests
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 70m);
         var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 30m);
         var transfer = await SeedCompletedTransferAsync(db, source.Id, destination.Id, 30m);
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ReverseAsync(destination.Id, transfer.Id);
+        var act = () => service.ReverseAsync(destination.Id, transfer.Id, "1234");
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -85,9 +85,24 @@ public class ReversalServiceTests
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 70m);
         var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 10m);
         var transfer = await SeedCompletedTransferAsync(db, source.Id, destination.Id, 30m);
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ReverseAsync(source.Id, transfer.Id);
+        var act = () => service.ReverseAsync(source.Id, transfer.Id, "1234");
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task ReverseAsync_WithWrongPassword_Throws()
+    {
+        using var db = new TestDatabase();
+        var customer = await db.SeedCustomerAsync(password: "correct");
+        var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 70m);
+        var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 30m);
+        var transfer = await SeedCompletedTransferAsync(db, source.Id, destination.Id, 30m);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
+
+        var act = () => service.ReverseAsync(source.Id, transfer.Id, "wrong");
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -100,9 +115,9 @@ public class ReversalServiceTests
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 70m);
         var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 30m);
         var transfer = await SeedCompletedTransferAsync(db, source.Id, destination.Id, 30m);
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var response = await service.ReverseAsync(source.Id, transfer.Id);
+        var response = await service.ReverseAsync(source.Id, transfer.Id, "1234");
 
         response.Should().NotBeNull();
         response!.OriginalTransferId.Should().Be(transfer.Id);
@@ -126,11 +141,11 @@ public class ReversalServiceTests
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 70m);
         var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 30m);
         var transfer = await SeedCompletedTransferAsync(db, source.Id, destination.Id, 30m);
-        var service = new ReversalService(db.Context);
+        var service = new ReversalService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        await service.ReverseAsync(source.Id, transfer.Id);
+        await service.ReverseAsync(source.Id, transfer.Id, "1234");
 
-        var act = () => service.ReverseAsync(source.Id, transfer.Id);
+        var act = () => service.ReverseAsync(source.Id, transfer.Id, "1234");
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }

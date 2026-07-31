@@ -13,7 +13,6 @@ export function OpenAccountService() {
 
   const accountName = ref('')
   const accountType = ref<AccountType>('Checking')
-  const password = ref('')
 
   const loading = ref(false)
   const error = ref('')
@@ -21,8 +20,8 @@ export function OpenAccountService() {
   async function submit(customerId: string): Promise<boolean> {
     error.value = ''
 
-    if (!accountName.value || !password.value) {
-      error.value = 'Preencha o nome da conta e a senha.'
+    if (!accountName.value) {
+      error.value = 'Preencha o nome da conta.'
       return false
     }
 
@@ -33,18 +32,15 @@ export function OpenAccountService() {
         customerId,
         name: accountName.value,
         type: accountType.value,
-        password: password.value,
       } satisfies CreateAccountRequest)
 
-      const { data: login } = await apiService.post<LoginResponse>('auth/login', {
-        accountNumber: account.number,
-        password: password.value,
-      })
+      const { data: switched } = await apiService.post<LoginResponse>(
+        `auth/switch-account/${account.id}`,
+      )
 
-      auth.login(login.token, account.number)
+      auth.login(switched.token, switched.customerId, switched.activeAccountId, account.number)
 
       accountName.value = ''
-      password.value = ''
       return true
     } catch {
       error.value = 'Não foi possível abrir a conta. Tente novamente.'
@@ -54,5 +50,5 @@ export function OpenAccountService() {
     }
   }
 
-  return { accountName, accountType, password, loading, error, submit }
+  return { accountName, accountType, loading, error, submit }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import Button from 'primevue/button'
 import Popover from 'primevue/popover'
 import SelectButton from 'primevue/selectbutton'
@@ -29,6 +29,14 @@ const presets: Preset[] = [
 const selectedPreset = ref<Preset | undefined>(presets[3])
 const customDates = ref<Date[]>()
 const popover = ref()
+const currentRange = ref<DateRange | null>(null)
+
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' })
+
+const periodLabel = computed(() => {
+  if (!currentRange.value) return 'Alterar período'
+  return `${dateFormatter.format(currentRange.value.from)} - ${dateFormatter.format(currentRange.value.to)}`
+})
 
 function toggle(event: Event) {
   popover.value.toggle(event)
@@ -46,7 +54,9 @@ function applyPreset(preset: Preset) {
 
   selectedPreset.value = preset
   customDates.value = undefined
-  emit('update:range', rangeFromDays(preset.days))
+  const range = rangeFromDays(preset.days)
+  currentRange.value = range
+  emit('update:range', range)
   popover.value.hide()
 }
 
@@ -55,18 +65,27 @@ function applyCustomRange() {
   if (!from || !to) return
 
   selectedPreset.value = undefined
+  currentRange.value = { from, to }
   emit('update:range', { from, to })
-  popover.value.hide()
+
+  setTimeout(() => popover.value.hide(), 150)
 }
 
+watch(customDates, (dates) => {
+  const [from, to] = dates ?? []
+  if (from && to) applyCustomRange()
+})
+
 onMounted(() => {
-  emit('update:range', rangeFromDays(selectedPreset.value!.days))
+  const range = rangeFromDays(selectedPreset.value!.days)
+  currentRange.value = range
+  emit('update:range', range)
 })
 </script>
 
 <template>
   <div>
-    <Button label="Alterar período" icon="pi pi-calendar" severity="secondary" @click="toggle" />
+    <Button :label="periodLabel" icon="pi pi-calendar" severity="secondary" @click="toggle" />
     <Popover ref="popover">
       <div class="flex flex-col gap-4 w-72">
         <div class="flex flex-col gap-2">
@@ -81,18 +100,13 @@ onMounted(() => {
         <div class="flex flex-col gap-2">
           <span class="text-sm font-medium">Ou escolha no calendário</span>
           <DatePicker
+            date-format="dd/mm/y"
             v-model="customDates"
             selectionMode="range"
             :manualInput="false"
             :maxDate="new Date()"
             showIcon
             fluid
-          />
-          <Button
-            label="Aplicar período"
-            size="small"
-            :disabled="!customDates || customDates.length < 2 || !customDates[1]"
-            @click="applyCustomRange"
           />
         </div>
       </div>

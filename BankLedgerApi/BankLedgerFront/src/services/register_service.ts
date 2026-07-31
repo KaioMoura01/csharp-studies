@@ -61,21 +61,22 @@ export function RegisterService() {
         name: name.value,
         documentNumber: documentNumber.value,
         documentType: documentType.value,
+        password: password.value,
       } satisfies CreateCustomerRequest)
 
-      const { data: account } = await apiService.post<AccountCreatedResponse>('accounts', {
+      await apiService.post<AccountCreatedResponse>('accounts', {
         customerId: customer.id,
         name: accountName.value,
         type: accountType.value,
-        password: password.value,
       } satisfies CreateAccountRequest)
 
       const { data: login } = await apiService.post<LoginResponse>('auth/login', {
-        accountNumber: account.number,
+        documentNumber: documentNumber.value,
         password: password.value,
       })
 
-      auth.login(login.token, account.number)
+      const activeAccount = login.accounts.find((a) => a.id === login.activeAccountId)
+      auth.login(login.token, login.customerId, login.activeAccountId, activeAccount?.number ?? '')
       router.push({ name: 'dashboard' })
     } catch {
       error.value = 'Não foi possível concluir o cadastro. Confira os dados e tente novamente.'

@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using BankLedgerApi.DTOs.Reversals;
-using BankLedgerApi.Services.Interfaces;
+using BankLedgerApi.Application.DTOs.Reversals;
+using BankLedgerApi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -27,7 +27,7 @@ public class ReversalsController(IReversalService reversalService) : ControllerB
 
         try
         {
-            var response = await reversalService.ReverseAsync(accountId, request.TransferId);
+            var response = await reversalService.ReverseAsync(accountId, request.TransferId, request.Password);
             return response is null ? NotFound() : Ok(response);
         }
         catch (InvalidOperationException exception)

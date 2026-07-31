@@ -1,8 +1,8 @@
 using BanLedgerApiXUnitTests.UnitTests.TestSupport;
-using BankLedgerApi.DTOs.Statements;
-using BankLedgerApi.Enums;
-using BankLedgerApi.Models;
-using BankLedgerApi.Services;
+using BankLedgerApi.Application.DTOs.Statements;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Domain.Models;
+using BankLedgerApi.Application.Services;
 using AwesomeAssertions;
 
 namespace BanLedgerApiXUnitTests.UnitTests;
@@ -13,7 +13,7 @@ public class StatementServiceTests
     public async Task GetAsync_WhenAccountMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new StatementService(db.Context);
+        var service = new StatementService(db.AccountRepository, db.TransferRepository);
 
         var response = await service.GetAsync(
             Guid.NewGuid(),
@@ -39,7 +39,7 @@ public class StatementServiceTests
             TransferOut(account.Id, counterparty.Id, 200m, today.ToDateTime(new TimeOnly(11, 0))));
         await db.Context.SaveChangesAsync();
 
-        var service = new StatementService(db.Context);
+        var service = new StatementService(db.AccountRepository, db.TransferRepository);
 
         var response = await service.GetAsync(account.Id, new StatementQuery(today, today));
 
@@ -65,7 +65,7 @@ public class StatementServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var account = await db.SeedAccountAsync(customer.Id, "1111111111");
-        var service = new StatementService(db.Context);
+        var service = new StatementService(db.AccountRepository, db.TransferRepository);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var act = () => service.GetAsync(account.Id, new StatementQuery(today.AddDays(1), today));
@@ -79,7 +79,7 @@ public class StatementServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var account = await db.SeedAccountAsync(customer.Id, "1111111111");
-        var service = new StatementService(db.Context);
+        var service = new StatementService(db.AccountRepository, db.TransferRepository);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var act = () => service.GetAsync(account.Id, new StatementQuery(today, today.AddDays(1)));

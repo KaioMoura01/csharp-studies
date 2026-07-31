@@ -1,7 +1,7 @@
 using BanLedgerApiXUnitTests.UnitTests.TestSupport;
-using BankLedgerApi.DTOs.Accounts;
-using BankLedgerApi.Enums;
-using BankLedgerApi.Services;
+using BankLedgerApi.Application.DTOs.Accounts;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Application.Services;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,23 +13,23 @@ public class AccountServiceTests
     public async Task CreateAsync_WhenCustomerMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.CreateAsync(
-            new CreateAccountRequest(Guid.NewGuid(), "Main", AccountTypeEnum.Checking, "1234"));
+            new CreateAccountRequest(Guid.NewGuid(), "Main", AccountTypeEnum.Checking));
 
         response.Should().BeNull();
     }
 
     [Fact]
-    public async Task CreateAsync_WithValidCustomer_CreatesActiveAccountWithHashedPassword()
+    public async Task CreateAsync_WithValidCustomer_CreatesActiveAccount()
     {
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.CreateAsync(
-            new CreateAccountRequest(customer.Id, "Main", AccountTypeEnum.Savings, "1234"));
+            new CreateAccountRequest(customer.Id, "Main", AccountTypeEnum.Savings));
 
         response.Should().NotBeNull();
         response!.Number.Should().HaveLength(10);
@@ -37,7 +37,6 @@ public class AccountServiceTests
         var stored = await db.Context.Accounts.SingleAsync(a => a.Id == response.Id);
         stored.IsActive.Should().BeTrue();
         stored.CurrentBalance.Should().Be(0m);
-        stored.PasswordHash.Should().NotBeNullOrEmpty().And.NotBe("1234");
     }
 
     [Fact]
@@ -46,7 +45,7 @@ public class AccountServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync(name: "Maria");
         var account = await db.SeedAccountAsync(customer.Id, "2000000002");
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.GetByIdAsync(account.Id);
 
@@ -62,7 +61,7 @@ public class AccountServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var account = await db.SeedAccountAsync(customer.Id, "3000000003");
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var act = () => service.DepositAsync(account.Id, 0m);
 
@@ -73,7 +72,7 @@ public class AccountServiceTests
     public async Task DepositAsync_WhenAccountMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.DepositAsync(Guid.NewGuid(), 100m);
 
@@ -86,7 +85,7 @@ public class AccountServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var account = await db.SeedAccountAsync(customer.Id, "4000000004", active: false);
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var act = () => service.DepositAsync(account.Id, 100m);
 
@@ -99,7 +98,7 @@ public class AccountServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var account = await db.SeedAccountAsync(customer.Id, "5000000005", balance: 100m);
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.DepositAsync(account.Id, 250m);
 
@@ -120,7 +119,7 @@ public class AccountServiceTests
         await db.SeedAccountAsync(customer.Id, "6000000006");
         await db.SeedAccountAsync(customer.Id, "6000000007");
         await db.SeedAccountAsync(other.Id, "6000000008");
-        var service = new AccountService(db.Context, db.PasswordHasher);
+        var service = new AccountService(db.AccountRepository, db.TransferRepository, db.UnitOfWork);
 
         var response = await service.GetByCustomerAsync(customer.Id);
 

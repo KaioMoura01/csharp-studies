@@ -1,13 +1,11 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
-using BankLedgerApi.Context;
-using BankLedgerApi.Models;
-using BankLedgerApi.Services;
-using BankLedgerApi.Services.Interfaces;
+using BankLedgerApi.Application.Services;
+using BankLedgerApi.Application.Services.Interfaces;
+using BankLedgerApi.Infrastructure;
+using BankLedgerApi.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
@@ -38,17 +36,8 @@ public static class DependencyInjection
         });
     }
 
-    private static void InjectDb(WebApplicationBuilder builder)
-    {
-        builder.Services.AddDbContext<AppDbContext>(options =>
-        {
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-        });
-    }
-
     private static void InjectServices(IServiceCollection services)
     {
-        services.AddSingleton<IPasswordHasher<Account>, PasswordHasher<Account>>();
         services.AddScoped<ICustomerService, CustomerService>();
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ITransferService, TransferService>();
@@ -61,7 +50,6 @@ public static class DependencyInjection
     {
         var services = builder.Services;
 
-        services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
         var settings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>()!;
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -122,7 +110,7 @@ public static class DependencyInjection
     public static void ConfigureServices(WebApplicationBuilder builder)
     {
         var services = builder.Services;
-        InjectDb(builder);
+        services.AddInfrastructure(builder.Configuration);
         InjectServices(services);
         ConfigureAuthentication(builder);
         ConfigureCors(services);

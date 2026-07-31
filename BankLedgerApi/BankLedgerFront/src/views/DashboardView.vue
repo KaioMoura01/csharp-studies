@@ -7,7 +7,7 @@ import TransactionList from '../components/TransactionList.vue'
 import TransactionDetailModal from '../components/TransactionDetailModal.vue'
 import type { DateRange } from '../components/DateRangeSelector.vue'
 
-const { myAccount, GetData } = DashboardService()
+const { myAccount, loading: accountLoading, GetData } = DashboardService()
 const { entries, loading: statementLoading, error: statementError, fetchStatement } = StatementService()
 
 const selectedEntry = ref<StatementEntry | null>(null)
@@ -44,6 +44,7 @@ onMounted(() => {
   <div class="flex flex-col gap-6">
     <DashboardHeader
       :my-account="myAccount"
+      :loading="accountLoading"
       @update:range="handleRangeChange"
       @refresh="handleAccountRefresh"
     />

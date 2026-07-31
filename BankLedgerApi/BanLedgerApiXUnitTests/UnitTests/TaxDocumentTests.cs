@@ -1,5 +1,5 @@
-using BankLedgerApi.Enums;
-using BankLedgerApi.Models;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Domain.Models;
 using AwesomeAssertions;
 
 namespace BanLedgerApiXUnitTests.UnitTests;

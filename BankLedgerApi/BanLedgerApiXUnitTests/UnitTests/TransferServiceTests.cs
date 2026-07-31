@@ -1,7 +1,7 @@
 using BanLedgerApiXUnitTests.UnitTests.TestSupport;
-using BankLedgerApi.DTOs.Transfers;
-using BankLedgerApi.Enums;
-using BankLedgerApi.Services;
+using BankLedgerApi.Application.DTOs.Transfers;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Application.Services;
 using AwesomeAssertions;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,9 +15,9 @@ public class TransferServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 0m));
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 0m, "1234"));
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -28,9 +28,9 @@ public class TransferServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("0000000000", 10m));
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("0000000000", 10m, "1234"));
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -41,9 +41,9 @@ public class TransferServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("1111111111", 10m));
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("1111111111", 10m, "1234"));
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -55,9 +55,9 @@ public class TransferServiceTests
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
         await db.SeedAccountAsync(customer.Id, "2222222222", active: false);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 10m));
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 10m, "1234"));
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -69,9 +69,23 @@ public class TransferServiceTests
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 5m);
         await db.SeedAccountAsync(customer.Id, "2222222222", balance: 0m);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 10m));
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 10m, "1234"));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_WithWrongPassword_Throws()
+    {
+        using var db = new TestDatabase();
+        var customer = await db.SeedCustomerAsync(password: "correct");
+        var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
+        await db.SeedAccountAsync(customer.Id, "2222222222", balance: 0m);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
+
+        var act = () => service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 10m, "wrong"));
 
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
@@ -83,9 +97,9 @@ public class TransferServiceTests
         var customer = await db.SeedCustomerAsync();
         var source = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
         var destination = await db.SeedAccountAsync(customer.Id, "2222222222", balance: 20m);
-        var service = new TransferService(db.Context);
+        var service = new TransferService(db.AccountRepository, db.TransferRepository, db.CustomerRepository, db.PasswordHasher, db.UnitOfWork);
 
-        var response = await service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 30m));
+        var response = await service.ExecuteAsync(source.Id, new CreateTransferRequest("2222222222", 30m, "1234"));
 
         response.Amount.Should().Be(30m);
         response.Status.Should().Be(TransferStatusEnum.Completed);

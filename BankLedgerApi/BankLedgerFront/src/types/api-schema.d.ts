@@ -15,7 +15,7 @@ export interface paths {
         put?: never;
         /**
          * Open an account
-         * @description Creates an account for an existing customer, generating a unique account number and storing the password as a hash.
+         * @description Creates an account for an existing, already authenticated-capable customer, generating a unique account number. No password is set here — login is per-customer.
          */
         post: {
             parameters: {
@@ -238,8 +238,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Authenticate an account
-         * @description Validates the account number and password and returns a JWT bearer token used to authorize account operations.
+         * Authenticate a customer
+         * @description Validates the customer's tax document (CPF/CNPJ) and password and returns a JWT bearer token scoped to their first active account.
          */
         post: {
             parameters: {
@@ -282,6 +282,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/switch-account/{accountId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Switch the active account
+         * @description Reissues a JWT scoped to another account owned by the same authenticated customer. Does not require the password again.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    accountId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LoginResponse"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/customers": {
         parameters: {
             query?: never;
@@ -293,7 +352,7 @@ export interface paths {
         put?: never;
         /**
          * Create a customer
-         * @description Registers a customer with a name and a tax document (CPF or CNPJ). The document number is validated by its digit count.
+         * @description Registers a customer with a name, a tax document (CPF or CNPJ) and a password used for login. The document number is validated by its digit count.
          */
         post: {
             parameters: {
@@ -395,7 +454,7 @@ export interface paths {
         };
         /**
          * List a customer's accounts
-         * @description Returns the accounts owned by the customer without repeating the owner data. Requires a valid JWT for an account owned by the same customer.
+         * @description Returns the accounts owned by the customer without repeating the owner data. Requires a valid JWT issued for that same customer.
          */
         get: {
             parameters: {
@@ -730,17 +789,18 @@ export interface components {
             customerId: string;
             name: string;
             type: components["schemas"]["AccountTypeEnum"];
-            password: string;
         };
         CreateCustomerRequest: {
             name: string;
             documentNumber: string;
             documentType: components["schemas"]["DocumentTypeEnum"];
+            password: string;
         };
         CreateTransferRequest: {
             destinationAccountNumber: string;
             /** Format: double */
             amount: number | string;
+            password: string;
         };
         CustomerDetailsResponse: {
             /** Format: uuid */
@@ -767,13 +827,18 @@ export interface components {
             type: components["schemas"]["DocumentTypeEnum"];
         };
         LoginRequest: {
-            accountNumber: string;
+            documentNumber: string;
             password: string;
         };
         LoginResponse: {
             token: string;
             /** Format: date-time */
             expiresAt: string;
+            /** Format: uuid */
+            customerId: string;
+            /** Format: uuid */
+            activeAccountId: string;
+            accounts: components["schemas"]["AccountSummaryResponse"][];
         };
         ProblemDetails: {
             type?: null | string;
@@ -786,6 +851,7 @@ export interface components {
         ReversalRequest: {
             /** Format: uuid */
             transferId: string;
+            password: string;
         };
         ReversalResponse: {
             /** Format: uuid */

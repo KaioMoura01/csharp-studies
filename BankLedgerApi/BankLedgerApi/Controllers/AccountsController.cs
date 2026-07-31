@@ -1,6 +1,6 @@
 using System.Security.Claims;
-using BankLedgerApi.DTOs.Accounts;
-using BankLedgerApi.Services.Interfaces;
+using BankLedgerApi.Application.DTOs.Accounts;
+using BankLedgerApi.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -15,7 +15,7 @@ public class AccountsController(IAccountService accountService) : ControllerBase
 {
     [HttpPost]
     [EndpointSummary("Open an account")]
-    [EndpointDescription("Creates an account for an existing customer, generating a unique account number and storing the password as a hash.")]
+    [EndpointDescription("Creates an account for an existing, already authenticated-capable customer, generating a unique account number. No password is set here — login is per-customer.")]
     [ProducesResponseType<AccountCreatedResponse>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create(CreateAccountRequest request)

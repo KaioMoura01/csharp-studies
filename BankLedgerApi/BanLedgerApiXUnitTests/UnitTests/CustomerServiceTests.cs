@@ -1,7 +1,7 @@
 using BanLedgerApiXUnitTests.UnitTests.TestSupport;
-using BankLedgerApi.DTOs.Customers;
-using BankLedgerApi.Enums;
-using BankLedgerApi.Services;
+using BankLedgerApi.Application.DTOs.Customers;
+using BankLedgerApi.Domain.Enums;
+using BankLedgerApi.Application.Services;
 using AwesomeAssertions;
 
 namespace BanLedgerApiXUnitTests.UnitTests;
@@ -12,10 +12,10 @@ public class CustomerServiceTests
     public async Task CreateAsync_WithValidData_PersistsCustomerWithDocument()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.Context);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
 
         var response = await service.CreateAsync(
-            new CreateCustomerRequest("Kaio", "12345678901", DocumentTypeEnum.Cpf));
+            new CreateCustomerRequest("Kaio", "12345678901", DocumentTypeEnum.Cpf, "1234"));
 
         response.Name.Should().Be("Kaio");
         response.Document.Number.Should().Be("12345678901");
@@ -27,10 +27,10 @@ public class CustomerServiceTests
     public async Task CreateAsync_WithInvalidDocument_Throws()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.Context);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
 
         var act = () => service.CreateAsync(
-            new CreateCustomerRequest("Kaio", "123", DocumentTypeEnum.Cpf));
+            new CreateCustomerRequest("Kaio", "123", DocumentTypeEnum.Cpf, "1234"));
 
         await act.Should().ThrowAsync<ArgumentException>();
     }
@@ -41,7 +41,7 @@ public class CustomerServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         await db.SeedAccountAsync(customer.Id, "1000000001");
-        var service = new CustomerService(db.Context);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
 
         var response = await service.GetByIdAsync(customer.Id);
 
@@ -53,7 +53,7 @@ public class CustomerServiceTests
     public async Task GetByIdAsync_WhenMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.Context);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
 
         var response = await service.GetByIdAsync(Guid.NewGuid());
 

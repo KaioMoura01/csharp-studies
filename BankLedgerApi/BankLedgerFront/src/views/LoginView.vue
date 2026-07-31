@@ -1,15 +1,21 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import Card from 'primevue/card'
-import InputText from 'primevue/inputtext'
+import InputMask from 'primevue/inputmask'
+import Select from 'primevue/select'
 import Button from 'primevue/button'
-import InputPassword from 'primevue/inputpassword';
+import InputPassword from 'primevue/inputpassword'
 import Message from 'primevue/message'
 import Divider from 'primevue/divider'
 import { AuthService } from '../services/auth_service'
 
 const router = useRouter()
-const { accountNumber, password, error, loading, submit } = AuthService()
+const { documentType, documentNumber, documentMask, password, error, loading, submit } = AuthService()
+
+const documentTypeOptions = [
+  { label: 'CPF', value: 'Cpf' },
+  { label: 'CNPJ', value: 'Cnpj' },
+]
 </script>
 
 <template>
@@ -19,9 +25,29 @@ const { accountNumber, password, error, loading, submit } = AuthService()
       <template #title>Entrar</template>
       <template #content>
         <form class="flex flex-col gap-4" @submit.prevent="submit">
-          <div class="flex flex-col gap-2">
-            <label for="account" class="text-sm font-medium">Número da conta</label>
-            <InputText id="account" v-model="accountNumber" autocomplete="username" fluid />
+          <div class="flex gap-4">
+            <div class="flex flex-col gap-2 w-32">
+              <label for="documentType" class="text-sm font-medium">Documento</label>
+              <Select
+                id="documentType"
+                v-model="documentType"
+                :options="documentTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                fluid
+              />
+            </div>
+            <div class="flex flex-col gap-2 flex-1">
+              <label for="documentNumber" class="text-sm font-medium">Número</label>
+              <InputMask
+                id="documentNumber"
+                v-model="documentNumber"
+                :mask="documentMask"
+                :placeholder="documentMask"
+                autocomplete="username"
+                fluid
+              />
+            </div>
           </div>
           <div class="flex flex-col gap-2">
             <label for="password" class="text-sm font-medium">Senha</label>
