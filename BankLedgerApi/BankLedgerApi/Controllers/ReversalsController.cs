@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using BankLedgerApi.DTOs.Statements;
+using BankLedgerApi.DTOs.Reversals;
 using BankLedgerApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,26 +9,26 @@ namespace BankLedgerApi.Controllers;
 
 [ApiController]
 [Authorize]
-[Route("statements")]
+[Route("reversals")]
 [Produces("application/json")]
-[Tags("Statements")]
-public class StatementsController(IStatementService statementService) : ControllerBase
+[Tags("Reversals")]
+public class ReversalsController(IReversalService reversalService) : ControllerBase
 {
-    [HttpGet]
-    [EndpointSummary("Get the account statement")]
-    [EndpointDescription("Returns the ledger entries of the authenticated account within a date range, with opening balance, closing balance and running balance per entry. Requires a valid JWT.")]
-    [ProducesResponseType<StatementResponse>(StatusCodes.Status200OK)]
+    [HttpPost]
+    [EndpointSummary("Reverse a transfer")]
+    [EndpointDescription("Reverses a completed transfer originated by the authenticated account, moving the amount back and recording a compensating ledger entry. Requires a valid JWT.")]
+    [ProducesResponseType<ReversalResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get([FromQuery] StatementQuery query)
+    public async Task<IActionResult> Create(ReversalRequest request)
     {
         var accountId = Guid.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub)!);
 
         try
         {
-            var statement = await statementService.GetAsync(accountId, query);
-            return statement is null ? NotFound() : Ok(statement);
+            var response = await reversalService.ReverseAsync(accountId, request.TransferId);
+            return response is null ? NotFound() : Ok(response);
         }
         catch (InvalidOperationException exception)
         {

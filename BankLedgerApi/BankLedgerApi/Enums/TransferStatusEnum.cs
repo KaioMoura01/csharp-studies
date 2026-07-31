@@ -4,5 +4,6 @@ public enum TransferStatusEnum:int
 {
     Pending,
     Completed,
-    Failed
+    Failed,
+    Reversed
 }

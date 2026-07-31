@@ -19,3 +19,9 @@ out/
 # Rider build helper
 .DS_Store
 LibraryApi/pgadmin/pgpass
+
+# Env files (any project in this repo)
+.env
+.env.*
+!.env.example
+!.env.*.example

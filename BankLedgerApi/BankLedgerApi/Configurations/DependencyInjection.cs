@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IAccountService, AccountService>();
         services.AddScoped<ITransferService, TransferService>();
         services.AddScoped<IStatementService, StatementService>();
+        services.AddScoped<IReversalService, ReversalService>();
         services.AddScoped<IAuthService, AuthService>();
     }
 
@@ -87,7 +88,7 @@ public static class DependencyInjection
         services.AddCors(options =>
         {
             options.AddPolicy("ApiClients", policy =>
-                policy.WithOrigins("https://apirequest.io")
+                policy.WithOrigins("https://apirequest.io","http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod());
         });

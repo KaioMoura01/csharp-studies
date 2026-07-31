@@ -84,7 +84,20 @@ A documentação abre em **http://localhost:5288/scalar/v1**.
 | POST | `/accounts/deposit` | JWT | Deposita na conta autenticada. |
 | GET | `/accounts/{id}` | — | Dados de uma conta por id. |
 | POST | `/transfers` | JWT | Transfere para outra conta (por número). |
+| POST | `/reversals` | JWT | Estorna uma transferência feita pela conta autenticada. |
 | GET | `/statements` | JWT | Extrato da conta autenticada por período. |
+| GET | `/health` | — | Health check (retorna `true`) para monitoramento. |
+
+## Estorno (reversal)
+
+O estorno é **append-only**: não apaga a transferência original — cria um **lançamento compensatório** movendo o valor de volta (destino → origem) e vinculado à original por `ReversedTransferId`. No extrato, original e estorno aparecem e se anulam, mantendo saldo e ledger reconciliados.
+
+Regras (`POST /reversals` com `{ "transferId": "..." }`):
+
+- Só a **conta de origem** da transferência pode estorná-la (autenticada por JWT).
+- A transferência precisa estar `Completed` e **não** ter sido estornada antes (o vínculo impede estorno duplo).
+- **Depósitos não são estornáveis** por esta rota.
+- Falha se a conta de **destino não tiver saldo** suficiente para devolver o valor.
 
 ## Observações
 

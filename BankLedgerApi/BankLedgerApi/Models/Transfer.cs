@@ -11,4 +11,5 @@ public class Transfer
     public Guid TransactionId { get; set; }
     public TransferStatusEnum Status { get; set; }
     public DateTime CreatedAt { get; set; } =  DateTime.UtcNow;
+    public Guid? ReversedTransferId { get; set; }
 }

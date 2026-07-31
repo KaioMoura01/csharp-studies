@@ -59,6 +59,34 @@ public class StatementServiceTests
         response.Entries[1].BalanceAfter.Should().Be(400m);
     }
 
+    [Fact]
+    public async Task GetAsync_WhenStartDateAfterEndDate_Throws()
+    {
+        using var db = new TestDatabase();
+        var customer = await db.SeedCustomerAsync();
+        var account = await db.SeedAccountAsync(customer.Id, "1111111111");
+        var service = new StatementService(db.Context);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var act = () => service.GetAsync(account.Id, new StatementQuery(today.AddDays(1), today));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
+    [Fact]
+    public async Task GetAsync_WhenEndDateIsInTheFuture_Throws()
+    {
+        using var db = new TestDatabase();
+        var customer = await db.SeedCustomerAsync();
+        var account = await db.SeedAccountAsync(customer.Id, "1111111111");
+        var service = new StatementService(db.Context);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var act = () => service.GetAsync(account.Id, new StatementQuery(today, today.AddDays(1)));
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+    }
+
     private static Transfer Deposit(Guid destinationId, decimal amount, DateTime createdAt) => new()
     {
         SourceAccountId = null,

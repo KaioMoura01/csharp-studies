@@ -103,6 +103,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.HasIndex(t => t.CreatedAt);
             entity.HasIndex(t => t.SourceAccountId);
             entity.HasIndex(t => t.DestinationAccountId);
+            entity.HasIndex(t => t.ReversedTransferId);
 
             entity.HasOne<Account>()
                 .WithMany()
