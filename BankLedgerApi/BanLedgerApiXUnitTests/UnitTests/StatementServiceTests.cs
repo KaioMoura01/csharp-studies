@@ -34,9 +34,9 @@ public class StatementServiceTests
         var yesterday = today.AddDays(-1);
 
         db.Context.Transfers.AddRange(
-            Deposit(account.Id, 100m, yesterday.ToDateTime(new TimeOnly(12, 0))),
-            Deposit(account.Id, 500m, today.ToDateTime(new TimeOnly(10, 0))),
-            TransferOut(account.Id, counterparty.Id, 200m, today.ToDateTime(new TimeOnly(11, 0))));
+            Deposit(db.TenantId, account.Id, 100m, yesterday.ToDateTime(new TimeOnly(12, 0))),
+            Deposit(db.TenantId, account.Id, 500m, today.ToDateTime(new TimeOnly(10, 0))),
+            TransferOut(db.TenantId, account.Id, counterparty.Id, 200m, today.ToDateTime(new TimeOnly(11, 0))));
         await db.Context.SaveChangesAsync();
 
         var service = new StatementService(db.AccountRepository, db.TransferRepository);
@@ -87,8 +87,9 @@ public class StatementServiceTests
         await act.Should().ThrowAsync<InvalidOperationException>();
     }
 
-    private static Transfer Deposit(Guid destinationId, decimal amount, DateTime createdAt) => new()
+    private static Transfer Deposit(Guid tenantId, Guid destinationId, decimal amount, DateTime createdAt) => new()
     {
+        TenantId = tenantId,
         SourceAccountId = null,
         DestinationAccountId = destinationId,
         Amount = amount,
@@ -97,8 +98,9 @@ public class StatementServiceTests
         CreatedAt = createdAt
     };
 
-    private static Transfer TransferOut(Guid sourceId, Guid destinationId, decimal amount, DateTime createdAt) => new()
+    private static Transfer TransferOut(Guid tenantId, Guid sourceId, Guid destinationId, decimal amount, DateTime createdAt) => new()
     {
+        TenantId = tenantId,
         SourceAccountId = sourceId,
         DestinationAccountId = destinationId,
         Amount = amount,

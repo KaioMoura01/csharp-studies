@@ -682,6 +682,107 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tenants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a tenant
+         * @description Provisions a new tenant (e.g. a bank) identified by a unique slug. Every customer, account and transfer created afterwards must be scoped to a tenant via the X-Tenant-Id header.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateTenantRequest"];
+                    "text/json": components["schemas"]["CreateTenantRequest"];
+                    "application/*+json": components["schemas"]["CreateTenantRequest"];
+                };
+            };
+            responses: {
+                /** @description Created */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantResponse"];
+                    };
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tenants/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a tenant by id */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TenantResponse"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/transfers": {
         parameters: {
             query?: never;
@@ -796,6 +897,10 @@ export interface components {
             documentType: components["schemas"]["DocumentTypeEnum"];
             password: string;
         };
+        CreateTenantRequest: {
+            name: string;
+            slug: string;
+        };
         CreateTransferRequest: {
             destinationAccountNumber: string;
             /** Format: double */
@@ -894,6 +999,13 @@ export interface components {
             /** Format: double */
             closingBalance: number | string;
             entries: components["schemas"]["StatementEntryResponse"][];
+        };
+        TenantResponse: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            slug: string;
+            isActive: boolean;
         };
         TransferResponse: {
             /** Format: uuid */

@@ -10,16 +10,18 @@ namespace BankLedgerApi.Application.Services;
 public class AccountService(
     IAccountRepository accountRepository,
     ITransferRepository transferRepository,
+    ICustomerRepository customerRepository,
     IUnitOfWork unitOfWork) : IAccountService
 {
     public async Task<AccountCreatedResponse?> CreateAsync(CreateAccountRequest request)
     {
-        var customerExists = await accountRepository.CustomerExistsAsync(request.CustomerId);
-        if (!customerExists)
+        var customer = await customerRepository.GetByIdAsync(request.CustomerId);
+        if (customer is null)
             return null;
 
         var account = new Account
         {
+            TenantId = customer.TenantId,
             Name = request.Name,
             Number = await GenerateUniqueNumberAsync(),
             Type = request.Type,
@@ -56,6 +58,7 @@ public class AccountService(
 
         transferRepository.Add(new Transfer
         {
+            TenantId = account.TenantId,
             SourceAccountId = null,
             DestinationAccountId = account.Id,
             Amount = amount,

@@ -1,10 +1,12 @@
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using BankLedgerApi.Application.Multitenancy;
 using BankLedgerApi.Application.Services;
 using BankLedgerApi.Application.Services.Interfaces;
 using BankLedgerApi.Infrastructure;
 using BankLedgerApi.Infrastructure.Security;
+using BankLedgerApi.Multitenancy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -44,6 +46,10 @@ public static class DependencyInjection
         services.AddScoped<IStatementService, StatementService>();
         services.AddScoped<IReversalService, ReversalService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITenantService, TenantService>();
+
+        services.AddHttpContextAccessor();
+        services.AddScoped<ITenantContext, HttpTenantContext>();
     }
 
     private static void ConfigureAuthentication(WebApplicationBuilder builder)

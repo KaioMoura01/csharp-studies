@@ -3,6 +3,7 @@ namespace BankLedgerApi.Domain.Models;
 public class Customer
 {
         public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
         public required string Name { get; set; }
         public required string PasswordHash { get; set; }
         public TaxDocument TaxDocument { get; set; } = null!;

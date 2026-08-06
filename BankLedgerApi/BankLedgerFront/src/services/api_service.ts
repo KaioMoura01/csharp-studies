@@ -13,6 +13,7 @@ class ApiService {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
+      config.headers['X-Tenant-Id'] = import.meta.env.VITE_TENANT_ID
       return config
     })
   }

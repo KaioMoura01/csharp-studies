@@ -16,6 +16,7 @@ Monorepo com meus estudos de C# / .NET. Cada pasta é um projeto independente.
 | [CatalogApi](CatalogApi) | API REST (ASP.NET Core / .NET 10) de catálogo de produtos e categorias: EF Core + PostgreSQL, autenticação JWT, _roles_ com Identity, paginação e Docker Compose. |
 | [LibraryApi](LibraryApi) | API REST (ASP.NET Core / .NET 10) de biblioteca: livros, usuários e empréstimos com EF Core + PostgreSQL, JWT, autorização por papéis, Repository/Unit of Work e Docker Compose. |
 | [BankLedgerApi](BankLedgerApi) | API REST (ASP.NET Core / .NET 10) de razão bancário: clientes, contas, depósitos, transferências e extrato com EF Core + SQLite, JWT (user-secrets), rate limiting, CORS e mappings. |
+| [ShopMicroservicesDemo](ShopMicroservicesDemo) | Dois microsserviços .NET 10 em Clean Architecture (UserService via gRPC, OrderService via REST + cliente gRPC) e frontend em Vue 3 + Vite/TS consumindo a API. |
 
 ## Como rodar um projeto
 

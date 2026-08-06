@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Cart/" />
+  <Folder Name="/src/Discount/" />
+  <Folder Name="/src/Product/">
+    <Project Path="src/Product/KShop.ProductApi.Application/KShop.ProductApi.Application.csproj" />
+    <Project Path="src/Product/KShop.ProductApi.Domain/KShop.ProductApi.Domain.csproj" />
+    <Project Path="src/Product/KShop.ProductApi.Infrastructure/KShop.ProductApi.Infrastructure.csproj" />
+    <Project Path="src/Product/KShop.ProductApi/KShop.ProductApi.csproj" />
+  </Folder>
+  <Folder Name="/src/User/">
+    <Project Path="src/User/KShop.UserApi.Application/KShop.UserApi.Application.csproj" />
+    <Project Path="src/User/KShop.UserApi.Domain/KShop.UserApi.Domain.csproj" />
+    <Project Path="src/User/KShop.UserApi.Infrastructure/KShop.UserApi.Infrastructure.csproj" />
+    <Project Path="src/User/KShop.UserApi/KShop.UserApi.csproj" />
+  </Folder>
+</Solution>

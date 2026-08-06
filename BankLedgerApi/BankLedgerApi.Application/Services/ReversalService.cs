@@ -58,6 +58,7 @@ public class ReversalService(
 
         var reversal = new Transfer
         {
+            TenantId = source.TenantId,
             SourceAccountId = destination.Id,
             DestinationAccountId = source.Id,
             Amount = original.Amount,

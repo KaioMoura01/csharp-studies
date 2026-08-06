@@ -12,7 +12,7 @@ public class CustomerServiceTests
     public async Task CreateAsync_WithValidData_PersistsCustomerWithDocument()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher, db.TenantContext);
 
         var response = await service.CreateAsync(
             new CreateCustomerRequest("Kaio", "12345678901", DocumentTypeEnum.Cpf, "1234"));
@@ -27,7 +27,7 @@ public class CustomerServiceTests
     public async Task CreateAsync_WithInvalidDocument_Throws()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher, db.TenantContext);
 
         var act = () => service.CreateAsync(
             new CreateCustomerRequest("Kaio", "123", DocumentTypeEnum.Cpf, "1234"));
@@ -41,7 +41,7 @@ public class CustomerServiceTests
         using var db = new TestDatabase();
         var customer = await db.SeedCustomerAsync();
         await db.SeedAccountAsync(customer.Id, "1000000001");
-        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher, db.TenantContext);
 
         var response = await service.GetByIdAsync(customer.Id);
 
@@ -53,7 +53,7 @@ public class CustomerServiceTests
     public async Task GetByIdAsync_WhenMissing_ReturnsNull()
     {
         using var db = new TestDatabase();
-        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher);
+        var service = new CustomerService(db.CustomerRepository, db.UnitOfWork, db.PasswordHasher, db.TenantContext);
 
         var response = await service.GetByIdAsync(Guid.NewGuid());
 

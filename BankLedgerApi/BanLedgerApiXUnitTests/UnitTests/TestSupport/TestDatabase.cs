@@ -1,3 +1,4 @@
+using BankLedgerApi.Application.Multitenancy;
 using BankLedgerApi.Application.Security;
 using BankLedgerApi.Domain.Enums;
 using BankLedgerApi.Domain.Models;
@@ -9,10 +10,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BanLedgerApiXUnitTests.UnitTests.TestSupport;
 
+public sealed class FixedTenantContext(Guid tenantId) : ITenantContext
+{
+    public Guid? TenantId { get; } = tenantId;
+}
+
 public sealed class TestDatabase : IDisposable
 {
     private readonly SqliteConnection _connection;
 
+    public Guid TenantId { get; } = Guid.NewGuid();
+    public ITenantContext TenantContext { get; }
     public AppDbContext Context { get; }
     public IPasswordHasher PasswordHasher { get; } = new PasswordHasherAdapter();
     public AccountRepository AccountRepository { get; }
@@ -29,7 +37,8 @@ public sealed class TestDatabase : IDisposable
             .UseSqlite(_connection)
             .Options;
 
-        Context = new AppDbContext(options);
+        TenantContext = new FixedTenantContext(TenantId);
+        Context = new AppDbContext(options, TenantContext);
         Context.Database.EnsureCreated();
 
         AccountRepository = new AccountRepository(Context);
@@ -46,6 +55,7 @@ public sealed class TestDatabase : IDisposable
     {
         var customer = new Customer
         {
+            TenantId = TenantId,
             Name = name,
             TaxDocument = new TaxDocument(document, type),
             PasswordHash = PasswordHasher.HashPassword(password)
@@ -66,6 +76,7 @@ public sealed class TestDatabase : IDisposable
     {
         var account = new Account
         {
+            TenantId = TenantId,
             Name = $"Account {number}",
             Number = number,
             Type = type,

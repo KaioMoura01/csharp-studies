@@ -1,0 +1,82 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+      - KC_HOSTNAME=http://localhost:8081
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./deploy/keycloak/kshop-realm.json:/opt/keycloak/data/import/kshop-realm.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  product-api:
+    build:
+      context: .
+      dockerfile: src/Product/KShop.ProductApi/Dockerfile
+    ports:
+      - "5289:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/data/product.db
+      - Keycloak__Authority=http://keycloak:8080/realms/kshop
+      - Keycloak__Issuer=http://localhost:8081/realms/kshop
+      - Keycloak__Audience=kshop-api
+      - UserApi__GrpcAddress=http://users-api:8081
+    volumes:
+      - product-api-data:/data
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      users-api:
+        condition: service_started
+
+  users-api:
+    build:
+      context: .
+      dockerfile: src/User/KShop.UserApi/Dockerfile
+    ports:
+      - "5291:8080"
+      - "5292:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/data/user.db
+      - Keycloak__Authority=http://keycloak:8080/realms/kshop
+      - Keycloak__Issuer=http://localhost:8081/realms/kshop
+      - Keycloak__Audience=kshop-api
+      - Keycloak__AdminUrl=http://keycloak:8080
+      - Keycloak__Realm=kshop
+      - Keycloak__AdminUsername=admin
+      - Keycloak__AdminPassword=admin
+    volumes:
+      - users-api-data:/data
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  # order-api:
+  #   build:
+  #     context: ./src/Order
+  #     dockerfile: KShop.OrderApi/Dockerfile
+  #   ports:
+  #     - "5290:8080"
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - "5173:5173"
+
+volumes:
+  product-api-data:
+  users-api-data:

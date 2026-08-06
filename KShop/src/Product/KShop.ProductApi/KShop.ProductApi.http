@@ -1,0 +1,6 @@
+@KShop.ProductApi_HostAddress = http://localhost:5254
+
+GET {{KShop.ProductApi_HostAddress}}/
+Accept: application/json
+
+###

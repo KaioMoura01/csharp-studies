@@ -14,6 +14,7 @@ public class ReversalServiceTests
     {
         var transfer = new Transfer
         {
+            TenantId = db.TenantId,
             SourceAccountId = sourceId,
             DestinationAccountId = destinationId,
             Amount = amount,
@@ -46,6 +47,7 @@ public class ReversalServiceTests
         var account = await db.SeedAccountAsync(customer.Id, "1111111111", balance: 100m);
         var deposit = new Transfer
         {
+            TenantId = db.TenantId,
             SourceAccountId = null,
             DestinationAccountId = account.Id,
             Amount = 100m,

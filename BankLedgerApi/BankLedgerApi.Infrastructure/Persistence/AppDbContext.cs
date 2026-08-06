@@ -1,10 +1,12 @@
+using BankLedgerApi.Application.Multitenancy;
 using BankLedgerApi.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankLedgerApi.Infrastructure.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext) : DbContext(options)
 {
+    public DbSet<Tenant> Tenants { get; set; }
     public DbSet<Account> Accounts { get; set; }
     public DbSet<Transfer> Transfers { get; set; }
     public DbSet<Customer> Customers { get; set; }
@@ -13,16 +15,44 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     {
         base.OnModelCreating(modelBuilder);
 
+        ConfigureTenant(modelBuilder);
         ConfigureCustomer(modelBuilder);
         ConfigureAccount(modelBuilder);
         ConfigureTransfer(modelBuilder);
     }
 
-    private static void ConfigureCustomer(ModelBuilder modelBuilder)
+    private static void ConfigureTenant(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Tenant>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+
+            entity.Property(t => t.Name)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(t => t.Slug)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasIndex(t => t.Slug).IsUnique();
+
+            entity.Property(t => t.IsActive)
+                .HasDefaultValue(true);
+
+            entity.Property(t => t.CreatedAt)
+                .IsRequired();
+        });
+    }
+
+    private void ConfigureCustomer(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Customer>(entity =>
         {
             entity.HasKey(c => c.Id);
+
+            entity.Property(c => c.TenantId)
+                .IsRequired();
 
             entity.Property(c => c.Name)
                 .IsRequired()
@@ -42,8 +72,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                     .HasColumnName("DocumentType")
                     .HasConversion<string>()
                     .HasMaxLength(10);
-
-                document.HasIndex(d => d.Number).IsUnique();
             });
 
             entity.Navigation(c => c.TaxDocument).IsRequired();
@@ -52,14 +80,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithOne(a => a.Customer)
                 .HasForeignKey(a => a.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasQueryFilter(c => c.TenantId == tenantContext.TenantId);
         });
     }
 
-    private static void ConfigureAccount(ModelBuilder modelBuilder)
+    private void ConfigureAccount(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
             entity.HasKey(a => a.Id);
+
+            entity.Property(a => a.TenantId)
+                .IsRequired();
 
             entity.Property(a => a.Name)
                 .IsRequired()
@@ -69,7 +102,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .IsRequired()
                 .HasMaxLength(20);
 
-            entity.HasIndex(a => a.Number).IsUnique();
+            entity.HasIndex(a => new { a.TenantId, a.Number }).IsUnique();
 
             entity.Property(a => a.Type)
                 .HasConversion<string>()
@@ -83,14 +116,19 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
             entity.Property(a => a.CreatedAt)
                 .IsRequired();
+
+            entity.HasQueryFilter(a => a.TenantId == tenantContext.TenantId);
         });
     }
 
-    private static void ConfigureTransfer(ModelBuilder modelBuilder)
+    private void ConfigureTransfer(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Transfer>(entity =>
         {
             entity.HasKey(t => t.Id);
+
+            entity.Property(t => t.TenantId)
+                .IsRequired();
 
             entity.Property(t => t.Amount)
                 .HasPrecision(18, 2);
@@ -117,6 +155,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(t => t.DestinationAccountId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasQueryFilter(t => t.TenantId == tenantContext.TenantId);
         });
     }
 }

@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "KShop.UserApi.Grpc";
+
+package user;
+
+service UserGrpcService {
+  rpc GetUser (GetUserRequest) returns (UserReply);
+  rpc GetUserBySub (GetUserBySubRequest) returns (UserReply);
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserBySubRequest {
+  string sub = 1;
+}
+
+message UserReply {
+  string id = 1;
+  string keycloakSubjectId = 2;
+  string displayName = 3;
+  string email = 4;
+  bool active = 5;
+}

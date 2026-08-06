@@ -1,0 +1,6 @@
+@MinimalCatalog_HostAddress = http://localhost:5112
+
+GET {{MinimalCatalog_HostAddress}}/
+Accept: application/json
+
+###

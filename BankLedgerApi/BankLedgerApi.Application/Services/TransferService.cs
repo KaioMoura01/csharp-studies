@@ -48,6 +48,7 @@ public class TransferService(
 
         var transfer = new Transfer
         {
+            TenantId = source.TenantId,
             SourceAccountId = source.Id,
             DestinationAccountId = destination.Id,
             Amount = request.Amount,
