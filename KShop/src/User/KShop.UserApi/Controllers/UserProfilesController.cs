@@ -22,6 +22,12 @@ public class UserProfilesController(IUserProfileService userProfileService) : Co
         return userProfile is null ? NotFound() : Ok(userProfile);
     }
 
+    /// <summary>
+    /// Perfil local do usuário autenticado, criado sob demanda no primeiro acesso.
+    /// O cadastro agora acontece no Keycloak, que não conhece esta tabela — então o perfil
+    /// nasce aqui, a partir das claims do token, na primeira vez que o usuário aparece.
+    /// Sem isso o gRPC GetUserBySub não acharia ninguém e criar produto falharia.
+    /// </summary>
     [Authorize]
     [HttpGet("me")]
     public async Task<ActionResult<UserProfileResponse>> GetMe()
@@ -30,7 +36,14 @@ public class UserProfilesController(IUserProfileService userProfileService) : Co
         if (string.IsNullOrEmpty(sub)) return Unauthorized();
 
         var userProfile = await userProfileService.GetBySubAsync(sub);
-        return userProfile is null ? NotFound() : Ok(userProfile);
+        if (userProfile is not null) return Ok(userProfile);
+
+        var displayName = User.FindFirst("name")?.Value
+            ?? User.FindFirst("preferred_username")?.Value
+            ?? sub;
+        var email = User.FindFirst("email")?.Value ?? string.Empty;
+
+        return Ok(await userProfileService.CreateAsync(new CreateUserProfileRequest(sub, displayName, email)));
     }
 
     [HttpPost]

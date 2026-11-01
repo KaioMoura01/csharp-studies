@@ -1,0 +1,6 @@
+@JcmSoft.API_HostAddress = http://localhost:5095
+
+GET {{JcmSoft.API_HostAddress}}/
+Accept: application/json
+
+###

@@ -3,6 +3,8 @@ export interface KeycloakTokenClaims {
   preferred_username?: string
   email?: string
   name?: string
+  iss?: string
+  exp?: number
 }
 
 export function decodeJwt(token: string): KeycloakTokenClaims {

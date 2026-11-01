@@ -1,0 +1,8 @@
+code,name,description,budget,init_date,finish_date,status,client_code
+PRJ01,Portal do Cliente,"Portal web de autoatendimento para consulta de fretes e notas fiscais",480000.00,2024-01-15,2024-09-30,Completed,CLI01
+PRJ02,Rastreamento de Frota,"Rastreamento de veículos em tempo real com alertas de rota e telemetria",750000.00,2024-03-01,2025-02-28,InProgress,CLI01
+PRJ03,Prontuário Eletrônico,"Prontuário eletrônico integrado às clínicas e ao faturamento do convênio",1250000.00,2024-05-20,2025-06-30,InProgress,CLI02
+PRJ04,Plataforma EAD,"Plataforma de ensino a distância com trilhas, provas e certificados",620000.00,2024-08-12,2025-04-15,UnderReview,CLI03
+PRJ05,App do Produtor,"Aplicativo mobile para registro de safra, insumos e entregas na cooperativa",390000.00,2025-01-08,2025-10-31,Started,CLI04
+PRJ06,Integração Open Finance,"Integração das APIs de Open Finance e consentimento do cliente",980000.00,2025-02-17,2026-03-31,Approved,CLI05
+PRJ07,Data Warehouse Comercial,"Data warehouse e painéis de performance da área comercial",540000.00,2023-06-05,2024-02-29,Canceled,CLI05

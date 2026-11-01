@@ -1,0 +1,240 @@
+/* Tema de login do TodoForSso.
+   Cores espelham a tela Vue original: fundo slate-900 -> emerald-950, card escuro no
+   tom do PrimeVue Aura (dark), acentos em esmeralda. */
+
+:root {
+  --bg-from: #0f172a;   /* slate-900 */
+  --bg-to: #022c22;     /* emerald-950 */
+  --card: #18181b;      /* Aura dark surface */
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #fafafa;
+  --muted: #a1a1aa;
+  --input-bg: #27272a;
+  --input-border: #3f3f46;
+  --accent: #10b981;    /* emerald-500 */
+  --accent-hover: #059669;
+  --accent-soft: #34d399;
+  --danger: #f87171;
+  --radius: 8px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: linear-gradient(to bottom right, var(--bg-from), var(--bg-from) 55%, var(--bg-to));
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 24rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Cabeçalho da marca */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.brand-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.card-title {
+  margin: 0.5rem 0 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Formulário */
+form { display: flex; flex-direction: column; gap: 1rem; }
+
+.field { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.field input {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+.field input[aria-invalid="true"] { border-color: var(--danger); }
+
+.field-error {
+  margin-top: -0.5rem;
+  font-size: 0.8125rem;
+  color: var(--danger);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #052e16;
+}
+
+.btn-primary:hover { background: var(--accent-hover); color: #ecfdf5; }
+
+.btn-social {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--input-border);
+}
+
+.btn-social:hover { background: rgba(255, 255, 255, 0.05); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--input-border);
+  margin-top: 0.75rem;
+}
+
+/* Separador "ou" */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--input-border);
+}
+
+.social-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+/* Rodapé */
+.card-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.card-footer a,
+.link-muted {
+  color: var(--accent-soft);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.card-footer a:hover,
+.link-muted:hover { text-decoration: underline; }
+
+.link-muted {
+  align-self: flex-start;
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+/* Alertas */
+.alert {
+  margin-bottom: 1rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+}
+
+.alert-error {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+.alert-warning {
+  color: #fde68a;
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.alert-success {
+  color: #a7f3d0;
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
+.alert-info {
+  color: #bae6fd;
+  background: rgba(2, 132, 199, 0.12);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+/* Marcador de campo obrigatório (tela de cadastro) */
+.required {
+  color: var(--danger);
+  margin-left: 0.125rem;
+}

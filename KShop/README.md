@@ -58,14 +58,24 @@ cd src/Product/KShop.ProductApi
 dotnet run
 ```
 
-**Frontend:**
+**Frontend:** (porta 5174 — a 5173 é do TodoForSso)
 ```bash
 cd frontend
 npm install   # primeira vez
-npm run dev
+npm run dev -- --port 5174
 ```
 
 **Tudo junto via Docker:**
 ```bash
-docker compose up --build
+cd ../sso && docker compose up -d   # SSO compartilhado, precisa vir primeiro
+cd ../KShop && docker compose up --build
 ```
+
+## Autenticação
+
+Vem do **SSO compartilhado em [`../sso`](../sso)** (Keycloak em `:8082`, realm `studies`), o mesmo
+do [TodoForSso](../TodoForSso) — uma conta vale nos dois. Este projeto não sobe Keycloak próprio.
+
+Na tela de login, o form de usuário/senha resolve na própria tela mas **não** propaga sessão SSO;
+os botões "Entrar com SSO"/"Entrar com Google" redirecionam ao Keycloak e aí sim o login é
+reconhecido nos outros projetos. O porquê está no [README do sso](../sso/README.md).

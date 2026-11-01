@@ -1,0 +1,51 @@
+# O Keycloak não vive mais aqui: ele é compartilhado entre projetos e mora em ../sso.
+# Suba-o primeiro (`cd ../sso && docker compose up -d`); a rede externa shared-sso é
+# o que permite a todo-api alcançá-lo por http://keycloak:8080.
+services:
+  todo-api:
+    build:
+      context: .
+      dockerfile: src/TodoForSso.TodoApi/Dockerfile
+    ports:
+      - "5300:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Data Source=/data/todo.db
+      - Keycloak__AuthServerUrl=http://keycloak:8080/
+      - Keycloak__Realm=studies
+      - Keycloak__Audience=todoforsso-api
+      - Keycloak__SslRequired=none
+      - Keycloak__Issuer=http://localhost:8082/realms/studies
+      - Keycloak__AdminUrl=http://keycloak:8080
+      - Keycloak__AdminUsername=admin
+      - Keycloak__AdminPassword=admin
+      - Keycloak__DefaultRole=user
+      - Frontend__Origin=http://localhost:5173
+    volumes:
+      - todo-api-data:/data
+    networks:
+      - default
+      - shared-sso
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_TODO_API_URL=http://localhost:5300
+      - VITE_KEYCLOAK_URL=http://localhost:8082
+      - VITE_KEYCLOAK_REALM=studies
+      - VITE_KEYCLOAK_CLIENT_ID=todoforsso-frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - todo-api
+
+volumes:
+  todo-api-data:
+
+networks:
+  shared-sso:
+    external: true

@@ -17,6 +17,8 @@ Monorepo com meus estudos de C# / .NET. Cada pasta é um projeto independente.
 | [LibraryApi](LibraryApi) | API REST (ASP.NET Core / .NET 10) de biblioteca: livros, usuários e empréstimos com EF Core + PostgreSQL, JWT, autorização por papéis, Repository/Unit of Work e Docker Compose. |
 | [BankLedgerApi](BankLedgerApi) | API REST (ASP.NET Core / .NET 10) de razão bancário: clientes, contas, depósitos, transferências e extrato com EF Core + SQLite, JWT (user-secrets), rate limiting, CORS e mappings. |
 | [ShopMicroservicesDemo](ShopMicroservicesDemo) | Dois microsserviços .NET 10 em Clean Architecture (UserService via gRPC, OrderService via REST + cliente gRPC) e frontend em Vue 3 + Vite/TS consumindo a API. |
+| [KShop](KShop) | E-commerce em microsserviços .NET 10 (Product/User) com Clean Architecture, autenticação via Keycloak, gRPC entre serviços e frontend Vue 3 + PrimeVue. |
+| [TodoForSso](TodoForSso) | API REST (ASP.NET Core / .NET 10) de lista de tarefas com autenticação via Keycloak e gestão de usuários (registro/listagem) via Keycloak Admin API; frontend Vue 3 + PrimeVue (dashboard com sidebar) e Docker Compose subindo Keycloak + API + frontend. |
 
 ## Como rodar um projeto
 
@@ -27,4 +29,4 @@ cd <PastaDoProjeto>
 dotnet run
 ```
 
-Os projetos de API web têm passos próprios (banco, migrations, segredos, Docker) — veja o README de cada um: [CatalogApi](CatalogApi/README.md), [LibraryApi](LibraryApi/README.md), [BankLedgerApi](BankLedgerApi/README.md).
+Os projetos de API web têm passos próprios (banco, migrations, segredos, Docker) — veja o README de cada um: [CatalogApi](CatalogApi/README.md), [LibraryApi](LibraryApi/README.md), [BankLedgerApi](BankLedgerApi/README.md), [TodoForSso](TodoForSso/README.md).

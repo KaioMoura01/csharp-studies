@@ -17,7 +17,6 @@ public static class ApplicationServiceCollectionExtensions
         services.AddScoped<IMapper, ServiceMapper>();
 
         services.AddScoped<IUserProfileService, UserProfileService>();
-        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

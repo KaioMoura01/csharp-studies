@@ -1,0 +1,7 @@
+code,name,description
+DEP01,Desenvolvimento,"Construção e manutenção dos produtos de software da empresa"
+DEP02,Infraestrutura,"Servidores, redes, banco de dados e pipelines de deploy"
+DEP03,Qualidade,"Testes manuais, automatizados e garantia de qualidade das entregas"
+DEP04,Design,"Pesquisa com usuários, UX e interface dos produtos"
+DEP05,Comercial,"Prospecção, propostas e relacionamento com clientes"
+DEP06,Pessoas,"Recrutamento, folha, treinamento e cultura organizacional"

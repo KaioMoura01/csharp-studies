@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JcmSoft.Console", "JcmSoft.Console\JcmSoft.Console.csproj", "{9B64EDA8-C148-4207-8F05-1437D0AD7CCF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JcmSoft.Domain", "JcmSoft.Domain\JcmSoft.Domain.csproj", "{621E1432-0519-4FD8-9C3A-9868BF9DB461}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JcmSoft.EFCore", "JcmSoft.EFCore\JcmSoft.EFCore.csproj", "{C19FE848-5EBE-4046-B061-646171FE39C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{45C13D87-E130-429E-89F2-9030BCB00453}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JcmSoft.API", "JcmSoft.API\JcmSoft.API.csproj", "{567000D9-5C9A-45EE-8FF3-25997C53DF8D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9B64EDA8-C148-4207-8F05-1437D0AD7CCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B64EDA8-C148-4207-8F05-1437D0AD7CCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B64EDA8-C148-4207-8F05-1437D0AD7CCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B64EDA8-C148-4207-8F05-1437D0AD7CCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{621E1432-0519-4FD8-9C3A-9868BF9DB461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{621E1432-0519-4FD8-9C3A-9868BF9DB461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{621E1432-0519-4FD8-9C3A-9868BF9DB461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{621E1432-0519-4FD8-9C3A-9868BF9DB461}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C19FE848-5EBE-4046-B061-646171FE39C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C19FE848-5EBE-4046-B061-646171FE39C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C19FE848-5EBE-4046-B061-646171FE39C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C19FE848-5EBE-4046-B061-646171FE39C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{567000D9-5C9A-45EE-8FF3-25997C53DF8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{567000D9-5C9A-45EE-8FF3-25997C53DF8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{567000D9-5C9A-45EE-8FF3-25997C53DF8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{567000D9-5C9A-45EE-8FF3-25997C53DF8D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

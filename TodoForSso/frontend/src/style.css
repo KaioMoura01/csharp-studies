@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "tailwindcss-primeui";
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}

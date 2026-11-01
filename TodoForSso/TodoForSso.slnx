@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TodoForSso.TodoApi.Application/TodoForSso.TodoApi.Application.csproj" />
+    <Project Path="src/TodoForSso.TodoApi.Domain/TodoForSso.TodoApi.Domain.csproj" />
+    <Project Path="src/TodoForSso.TodoApi.Infrastructure/TodoForSso.TodoApi.Infrastructure.csproj" />
+    <Project Path="src/TodoForSso.TodoApi/TodoForSso.TodoApi.csproj" />
+  </Folder>
+</Solution>

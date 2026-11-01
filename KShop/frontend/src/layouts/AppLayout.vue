@@ -8,7 +8,6 @@ const auth = useAuthStore()
 
 function logout() {
   auth.logout()
-  router.push({ name: 'login' })
 }
 
 function home() {

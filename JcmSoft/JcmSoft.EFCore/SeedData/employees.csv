@@ -1,0 +1,21 @@
+code,name,role,salary,init_date,department_code
+EMP01,Kaio Moura,Tech Lead,16500.00,2021-03-15,DEP01
+EMP02,Ana Beatriz Ferreira,Dev Backend,14200.00,2021-08-02,DEP01
+EMP03,Rafael Nogueira,Dev Backend,10800.00,2022-01-10,DEP01
+EMP04,Juliana Castro,Dev Frontend,13500.00,2022-04-25,DEP01
+EMP05,Pedro Henrique Lima,Dev Frontend,6200.00,2023-09-11,DEP01
+EMP06,Marina Alves,Dev Mobile,11300.00,2023-02-06,DEP01
+EMP07,Thiago Barros,Dev Fullstack,11900.00,2022-11-14,DEP01
+EMP08,Carla Menezes,DevOps,15100.00,2020-06-01,DEP02
+EMP09,Bruno Tavares,DevOps,12400.00,2022-07-18,DEP02
+EMP10,Leonardo Pires,DevOps,13100.00,2021-10-04,DEP02
+EMP11,Fernanda Rocha,QA,11700.00,2021-05-17,DEP03
+EMP12,Gustavo Andrade,QA,8900.00,2023-03-20,DEP03
+EMP13,Patrícia Souza,QA,12600.00,2022-09-05,DEP03
+EMP14,Camila Duarte,Designer,12900.00,2021-12-13,DEP04
+EMP15,Vinícius Prado,Designer,9400.00,2023-06-26,DEP04
+EMP16,Ricardo Amaral,Comercial,17800.00,2020-02-03,DEP05
+EMP17,Larissa Monteiro,Comercial,9800.00,2022-05-09,DEP05
+EMP18,Diego Fontes,Comercial,8700.00,2023-11-06,DEP05
+EMP19,Renata Cardoso,RH,15900.00,2020-09-21,DEP06
+EMP20,Isabela Martins,RH,5600.00,2024-02-19,DEP06

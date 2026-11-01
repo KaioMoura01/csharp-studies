@@ -1,0 +1,75 @@
+services:
+  # Postgres é o que faz usuários, vínculos de conta e configuração de IdP sobreviverem
+  # a `docker compose down`. O H2 embutido do start-dev vive na camada gravável do
+  # container e some em qualquer recriação.
+  keycloak-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=keycloak
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # Resolve o template do realm substituindo __GOOGLE_CLIENT_ID__/__GOOGLE_CLIENT_SECRET__
+  # pelas variáveis do .env deste diretório, para o segredo do Google nunca ir pro git.
+  # Existe porque a substituição nativa do Keycloak (${VAR} no JSON importado) é pouco
+  # confiável entre versões; resolver antes, com sed, é determinístico.
+  keycloak-realm-init:
+    image: busybox:1.36
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - sed -e "s|__GOOGLE_CLIENT_ID__|$$GOOGLE_CLIENT_ID|g" -e "s|__GOOGLE_CLIENT_SECRET__|$$GOOGLE_CLIENT_SECRET|g" /template/studies-realm.json.template > /import/studies-realm.json
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+    volumes:
+      - ./deploy/keycloak:/template:ro
+      - keycloak-realm-import:/import
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start-dev --import-realm
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HEALTH_ENABLED=true
+      - KC_HOSTNAME=http://localhost:8082
+      - KC_HOSTNAME_BACKCHANNEL_DYNAMIC=true
+      # start-dev usa dev-file (H2) como default; KC_DB explícito sobrescreve isso.
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://keycloak-db:5432/keycloak
+      - KC_DB_USERNAME=keycloak
+      - KC_DB_PASSWORD=keycloak
+    ports:
+      - "8082:8080"
+    volumes:
+      - keycloak-realm-import:/opt/keycloak/data/import:ro
+      # Temas de login por aplicação. start-dev não cacheia tema: editar + F5 basta.
+      - ./deploy/keycloak/themes:/opt/keycloak/themes:ro
+    networks:
+      - default
+      - shared-sso
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+      keycloak-realm-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && echo -e 'GET /health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  keycloak-db-data:
+  keycloak-realm-import:
+
+networks:
+  shared-sso:
+    external: true
